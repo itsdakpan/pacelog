@@ -1,5 +1,5 @@
 import { useCallback, useEffect, useRef, useState } from "react";
-import { ApiError, EMPTY_SUMMARY, createActivity, fetchFeed, giveKudos } from "./api";
+import { ApiError, EMPTY_SUMMARY, createActivity, deleteActivity, fetchFeed, giveKudos } from "./api";
 import type { Activity, NewActivity, Summary } from "./api";
 
 const describe = (error: unknown) =>
@@ -16,6 +16,7 @@ export function useActivities() {
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
   const [pendingKudos, setPendingKudos] = useState<number[]>([]);
+  const [deleting, setDeleting] = useState<number[]>([]);
 
   // Saves and reloads overlap, so an older response must never overwrite the
   // state a newer one already wrote.
@@ -60,6 +61,22 @@ export function useActivities() {
     [load, saving],
   );
 
+  const remove = useCallback(
+    async (id: number) => {
+      if (deleting.includes(id)) return;
+      setDeleting((ids) => [...ids, id]);
+      try {
+        await deleteActivity(id);
+        await load();
+      } catch (failure) {
+        setFeedError(describe(failure));
+      } finally {
+        setDeleting((ids) => ids.filter((pending) => pending !== id));
+      }
+    },
+    [deleting, load],
+  );
+
   const kudos = useCallback(
     async (id: number) => {
       if (pendingKudos.includes(id)) return;
@@ -79,5 +96,5 @@ export function useActivities() {
     [pendingKudos],
   );
 
-  return { activities, summary, feedError, loading, saving, pendingKudos, save, kudos };
+  return { activities, summary, feedError, loading, saving, pendingKudos, deleting, save, kudos, remove };
 }

@@ -14,6 +14,11 @@ class Api::V1::ActivitiesController < ApplicationController
     end
   end
 
+  def destroy
+    Activity.find(params[:id]).destroy!
+    head :no_content
+  end
+
   def kudos
     activity = Activity.find(params[:id])
     activity.increment!(:kudos_count)

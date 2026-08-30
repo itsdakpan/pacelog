@@ -46,6 +46,14 @@ button:disabled{background:#2e352a;color:#8a9182;cursor:not-allowed}
 .record dd{margin:10px 0 0;font-size:1.05rem;color:#f5f5ef}
 .record-figure{display:block;color:#b8ff6a;font-size:1.5rem;font-weight:700;margin-top:4px}
 
+.entry-actions{display:flex;flex-direction:column;align-items:flex-end;gap:8px;align-self:center}
+.link{background:none;border:0;padding:2px 4px;font-size:.75rem;font-weight:600;color:#7e857a;cursor:pointer}
+.link:hover:not(:disabled){color:#cdd1c7;background:none}
+.link.danger{color:#ff9388}
+.link.danger:hover:not(:disabled){color:#ffb3ab;background:none}
+.link:disabled{background:none;color:#5a6054;cursor:progress}
+.confirm{display:flex;gap:6px;align-items:center}
+
 .skeleton-row{padding:18px 0;border-top:1px solid #30352c}
 .shim{display:block;height:11px;border-radius:5px;background:#262c22}
 .shim+.shim{margin-top:8px}

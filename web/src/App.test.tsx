@@ -1,4 +1,4 @@
-import { render, screen, waitFor, within } from "@testing-library/react";
+import { render, screen, waitFor } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 import App from "./App";
@@ -343,6 +343,59 @@ describe("logging a past ride", () => {
   });
 });
 
+describe("deleting an entry", () => {
+  it("takes two clicks and then removes the activity", async () => {
+    const user = userEvent.setup();
+    fetchMock
+      .mockResolvedValueOnce(json(feed([sampleRun])))
+      .mockResolvedValueOnce(new Response(null, { status: 204 }))
+      .mockResolvedValueOnce(json(feed([])));
+
+    render(<App />);
+    await screen.findByText("Morning run");
+
+    await user.click(screen.getByRole("button", { name: /delete morning run/i }));
+    // First click only arms it — nothing has been sent yet.
+    expect(fetchMock.mock.calls.filter((call) => call[1]?.method === "DELETE")).toHaveLength(0);
+
+    await user.click(screen.getByRole("button", { name: /^delete$/i }));
+
+    expect(await screen.findByText(/your next run starts here/i)).toBeInTheDocument();
+    const sent = fetchMock.mock.calls.find((call) => call[1]?.method === "DELETE");
+    expect(sent?.[0]).toBe("/api/v1/activities/1");
+  });
+
+  it("cancelling leaves the activity alone", async () => {
+    const user = userEvent.setup();
+    fetchMock.mockResolvedValue(json(feed([sampleRun])));
+
+    render(<App />);
+    await screen.findByText("Morning run");
+
+    await user.click(screen.getByRole("button", { name: /delete morning run/i }));
+    await user.click(screen.getByRole("button", { name: /cancel/i }));
+
+    expect(screen.getByText("Morning run")).toBeInTheDocument();
+    expect(fetchMock.mock.calls.filter((call) => call[1]?.method === "DELETE")).toHaveLength(0);
+  });
+
+  it("reports a failed delete instead of silently leaving the row", async () => {
+    const user = userEvent.setup();
+    fetchMock
+      .mockResolvedValueOnce(json(feed([sampleRun])))
+      .mockRejectedValueOnce(new TypeError("Failed to fetch"));
+
+    render(<App />);
+    await screen.findByText("Morning run");
+
+    await user.click(screen.getByRole("button", { name: /delete morning run/i }));
+    await user.click(screen.getByRole("button", { name: /^delete$/i }));
+
+    expect(await screen.findByText(/can't reach the api/i)).toBeInTheDocument();
+    expect(screen.getByText("Morning run")).toBeInTheDocument();
+  });
+});
+
 describe("kudos", () => {
   it("updates the count from the server response", async () => {
     const user = userEvent.setup();
@@ -351,9 +404,9 @@ describe("kudos", () => {
       .mockResolvedValueOnce(json({ activity: { ...sampleRun, kudos_count: 3 } }));
 
     render(<App />);
-    const entry = (await screen.findByText("Morning run")).closest("article") as HTMLElement;
+    await screen.findByText("Morning run");
 
-    await user.click(within(entry).getByRole("button"));
+    await user.click(screen.getByRole("button", { name: /give kudos to morning run/i }));
 
     expect(await screen.findByRole("button", { name: /3 so far/i })).toBeInTheDocument();
     expect(fetchMock.mock.calls[1][0]).toBe("/api/v1/activities/1/kudos");
@@ -366,9 +419,9 @@ describe("kudos", () => {
       .mockRejectedValueOnce(new TypeError("Failed to fetch"));
 
     render(<App />);
-    const entry = (await screen.findByText("Morning run")).closest("article") as HTMLElement;
+    await screen.findByText("Morning run");
 
-    await user.click(within(entry).getByRole("button"));
+    await user.click(screen.getByRole("button", { name: /give kudos to morning run/i }));
 
     expect(await screen.findByText(/can't reach the api/i)).toBeInTheDocument();
   });

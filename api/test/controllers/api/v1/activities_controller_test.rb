@@ -100,6 +100,23 @@ class Api::V1::ActivitiesControllerTest < ActionDispatch::IntegrationTest
     assert_response :unprocessable_entity
   end
 
+  test "destroy removes the activity and returns no content" do
+    activity = activities(:morning_run)
+
+    assert_difference "Activity.count", -1 do
+      delete api_v1_activity_url(activity)
+    end
+
+    assert_response :no_content
+    assert_nil Activity.find_by(id: activity.id)
+  end
+
+  test "destroy on a missing activity responds 404 rather than a 500" do
+    delete api_v1_activity_url(id: 0)
+
+    assert_response :not_found
+  end
+
   test "kudos increments the counter and returns the updated activity" do
     activity = activities(:morning_run)
 

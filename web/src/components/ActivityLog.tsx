@@ -1,3 +1,4 @@
+import { useState } from "react";
 import type { Activity } from "../api";
 import { formatDistance, formatDuration, formatEntryDate, formatPace } from "../lib/format";
 
@@ -6,10 +7,24 @@ type Props = {
   loading: boolean;
   error: string;
   pendingKudos: number[];
+  deleting: number[];
   onKudos: (id: number) => void;
+  onDelete: (id: number) => void;
 };
 
-export function ActivityLog({ activities, loading, error, pendingKudos, onKudos }: Props) {
+export function ActivityLog({
+  activities,
+  loading,
+  error,
+  pendingKudos,
+  deleting,
+  onKudos,
+  onDelete,
+}: Props) {
+  // Deleting is irreversible, so it takes two deliberate clicks rather than a
+  // browser confirm dialog.
+  const [confirming, setConfirming] = useState<number | null>(null);
+
   return (
     <section className="feed">
       <div className="feed-title">
@@ -40,14 +55,43 @@ export function ActivityLog({ activities, loading, error, pendingKudos, onKudos 
             </p>
             {activity.notes && <p className="entry-notes">{activity.notes}</p>}
           </div>
-          <button
-            className="kudos"
-            onClick={() => onKudos(activity.id)}
-            disabled={pendingKudos.includes(activity.id)}
-            aria-label={`Give kudos to ${activity.title}, ${activity.kudos_count} so far`}
-          >
-            ♥ {activity.kudos_count}
-          </button>
+
+          <div className="entry-actions">
+            <button
+              className="kudos"
+              onClick={() => onKudos(activity.id)}
+              disabled={pendingKudos.includes(activity.id)}
+              aria-label={`Give kudos to ${activity.title}, ${activity.kudos_count} so far`}
+            >
+              ♥ {activity.kudos_count}
+            </button>
+
+            {confirming === activity.id ? (
+              <span className="confirm">
+                <button
+                  className="link danger"
+                  onClick={() => {
+                    setConfirming(null);
+                    onDelete(activity.id);
+                  }}
+                  disabled={deleting.includes(activity.id)}
+                >
+                  {deleting.includes(activity.id) ? "Deleting…" : "Delete"}
+                </button>
+                <button className="link" onClick={() => setConfirming(null)}>
+                  Cancel
+                </button>
+              </span>
+            ) : (
+              <button
+                className="link"
+                onClick={() => setConfirming(activity.id)}
+                aria-label={`Delete ${activity.title}`}
+              >
+                Delete
+              </button>
+            )}
+          </div>
         </article>
       ))}
     </section>

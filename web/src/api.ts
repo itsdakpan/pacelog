@@ -99,6 +99,9 @@ async function request<T>(path: string, init?: RequestInit): Promise<T> {
     throw new ApiError("offline", OFFLINE_MESSAGE, response.status);
   }
 
+  // 204 carries no body, so there is nothing to parse and no content-type.
+  if (response.status === 204) return undefined as T;
+
   const contentType = response.headers.get("content-type") ?? "";
   if (!contentType.includes("application/json")) {
     // A 404 HTML page here means some other server is on the API port.
@@ -151,6 +154,10 @@ export function createActivity(input: NewActivity): Promise<{ activity: Activity
       },
     }),
   });
+}
+
+export function deleteActivity(id: number): Promise<void> {
+  return request<void>(`/activities/${id}`, { method: "DELETE" });
 }
 
 export function giveKudos(id: number): Promise<{ activity: Activity }> {
