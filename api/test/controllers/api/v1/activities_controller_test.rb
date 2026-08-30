@@ -23,6 +23,14 @@ class Api::V1::ActivitiesControllerTest < ActionDispatch::IntegrationTest
     assert_equal 6.0, morning["pace_per_km"].to_f
   end
 
+  test "index serialises started_at so the client can show a date" do
+    get api_v1_activities_url
+
+    morning = JSON.parse(response.body)["activities"].find { |a| a["title"] == "Morning run" }
+    assert morning.key?("started_at"), "started_at must be serialised"
+    assert_equal activities(:morning_run).started_at.iso8601(3), Time.parse(morning["started_at"]).utc.iso8601(3)
+  end
+
   test "create persists a valid activity and returns it" do
     assert_difference "Activity.count", 1 do
       post api_v1_activities_url, params: {
