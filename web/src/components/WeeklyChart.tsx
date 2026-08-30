@@ -8,9 +8,8 @@ const shortDate = (iso: string) => {
 };
 
 /**
- * Hand-rolled rather than a charting library: twelve bars need no dependency,
- * and this way the chart inherits the page's colours instead of fighting a
- * library's defaults.
+ * Hand-rolled rather than a charting library: twelve bars need no dependency.
+ * Every bar carries its own value so the chart can be read without hovering.
  */
 export function WeeklyChart({ series }: { series: Summary["weekly_series"] }) {
   if (series.length === 0) return null;
@@ -18,24 +17,23 @@ export function WeeklyChart({ series }: { series: Summary["weekly_series"] }) {
   const peak = Math.max(...series.map((week) => week.distance_km), 1);
 
   return (
-    <section className="chart" aria-label="Weekly distance over the last 12 weeks">
+    <section className="chart" aria-label="Distance run each week for the last 12 weeks">
       <div className="chart-head">
-        <h2>Weekly volume</h2>
-        <small>Last {series.length} weeks</small>
+        <h2>Distance per week</h2>
+        <small>Last {series.length} weeks, in km</small>
       </div>
+
       <div className="chart-bars">
         {series.map((week) => (
-          <div
-            key={week.week_start}
-            className={week.distance_km === peak ? "chart-bar chart-bar--peak" : "chart-bar"}
-            style={{ height: `${Math.max((week.distance_km / peak) * 100, 3)}%` }}
-            title={`Week of ${shortDate(week.week_start)} · ${week.distance_km} km`}
-          />
+          <div className="chart-col" key={week.week_start}>
+            <span className="chart-value num">{week.distance_km}</span>
+            <div
+              className={week.distance_km === peak ? "chart-bar chart-bar--peak" : "chart-bar"}
+              style={{ height: `${Math.max((week.distance_km / peak) * 100, 3)}%` }}
+            />
+            <span className="chart-week num">{shortDate(week.week_start)}</span>
+          </div>
         ))}
-      </div>
-      <div className="chart-axis">
-        <span>{shortDate(series[0].week_start)}</span>
-        <span>{shortDate(series[series.length - 1].week_start)}</span>
       </div>
     </section>
   );

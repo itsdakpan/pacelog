@@ -7,8 +7,7 @@ import { WeeklyChart } from "./components/WeeklyChart";
 import { useActivities } from "./useActivities";
 
 export default function App() {
-  const { activities, summary, feedError, loading, saving, pendingKudos, deleting, liked, save, kudos, remove } =
-    useActivities();
+  const { activities, summary, feedError, loading, saving, deleting, save, remove } = useActivities();
 
   return (
     <main>
@@ -24,10 +23,7 @@ export default function App() {
           activities={activities}
           loading={loading}
           error={feedError}
-          pendingKudos={pendingKudos}
           deleting={deleting}
-          liked={liked}
-          onKudos={kudos}
           onDelete={remove}
         />
       </section>

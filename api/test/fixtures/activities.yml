@@ -7,7 +7,6 @@ morning_run:
   distance_km: 5.0
   duration_minutes: 30
   notes: Easy pace
-  kudos_count: 1
 
 long_ride:
   title: Long ride
@@ -16,4 +15,3 @@ long_ride:
   distance_km: 20.0
   duration_minutes: 60
   notes: Hills
-  kudos_count: 0

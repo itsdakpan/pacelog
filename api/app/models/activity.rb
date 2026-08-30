@@ -6,8 +6,6 @@ class Activity < ApplicationRecord
   validates :distance_km, numericality: { greater_than: 0 }
   validates :duration_minutes, numericality: { only_integer: true, greater_than: 0 }
 
-  before_validation :set_defaults
-
   WEEKS_IN_BLOCK = 12
 
   # Weekly buckets, oldest first, zero-filled so the chart has a bar for every
@@ -49,14 +47,11 @@ class Activity < ApplicationRecord
     longest = runs.order(distance_km: :desc).first
     # Lowest minutes-per-km wins; done in SQL so it does not load every run.
     fastest = runs.where("distance_km > 0").order(Arel.sql("duration_minutes / distance_km ASC")).first
-    biggest = weekly_series.max_by { |week| week[:distance_km] }
-
     {
       longest_run: longest && { title: longest.title, distance_km: longest.distance_km.to_f,
                                 started_at: longest.started_at },
       fastest_pace: fastest && { title: fastest.title, pace_per_km: fastest.pace_per_km.to_f,
-                                 started_at: fastest.started_at },
-      biggest_week: biggest
+                                 started_at: fastest.started_at }
     }
   end
 
@@ -64,11 +59,5 @@ class Activity < ApplicationRecord
     return nil if distance_km.blank? || distance_km.zero?
 
     (duration_minutes / distance_km).round(2)
-  end
-
-  private
-
-  def set_defaults
-    self.kudos_count ||= 0
   end
 end

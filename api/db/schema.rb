@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[7.2].define(version: 2026_08_29_065203) do
+ActiveRecord::Schema[7.2].define(version: 2026_08_30_093102) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "plpgsql"
 
@@ -21,7 +21,6 @@ ActiveRecord::Schema[7.2].define(version: 2026_08_29_065203) do
     t.decimal "distance_km"
     t.integer "duration_minutes"
     t.text "notes"
-    t.integer "kudos_count"
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
   end

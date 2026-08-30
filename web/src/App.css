@@ -7,6 +7,7 @@ header>span,.activity p,.empty{color:#b8b9b1}
 .stats{grid-template-columns:repeat(4,1fr)}
 .stats article,form,.feed,.chart,.record{background:#1b1e19;border:1px solid #30352c;border-radius:18px;padding:24px}
 .stats small{color:#a1a69c}
+.stat-note{display:block;margin-top:6px;color:#7e857a;font-size:.7rem;line-height:1.3}
 strong{display:block;font-size:2rem;margin-top:10px}
 .grid{grid-template-columns:minmax(260px,.8fr) minmax(0,1.2fr);align-items:start}
 h2{margin-top:0}
@@ -22,11 +23,6 @@ button:disabled{background:#2e352a;color:#8a9182;cursor:not-allowed}
 .activity{padding:18px 0;border-top:1px solid #30352c}
 .activity h3{margin:4px 0}
 .activity p{margin:0;font-size:.9rem}
-.kudos{align-self:center;background:#2e352a;color:#dce5d5;font-weight:700}
-.kudos:hover:not(:disabled){background:#3a4435;color:#eaf5e2}
-.kudos--given{background:#b8ff6a;color:#14200a}
-.kudos--given:hover:not(:disabled){background:#a5ef55;color:#14200a}
-.kudos:disabled{background:#23291f;color:#6f7669;cursor:progress}
 .error{color:#ff9388;margin:18px 0 0}
 
 /* ---- Additions, in the same visual language ---------------------------- */
@@ -38,17 +34,21 @@ button:disabled{background:#2e352a;color:#8a9182;cursor:not-allowed}
 .chart-head,.records-head{display:flex;justify-content:space-between;align-items:baseline;margin-bottom:18px}
 .chart-head h2{margin:0;font-size:1.05rem}
 .chart-head small{color:#a1a69c;font-size:.75rem}
-.chart-bars{display:grid;grid-template-columns:repeat(12,1fr);gap:6px;height:96px;align-items:end}
+.chart-bars{display:grid;grid-template-columns:repeat(12,1fr);gap:6px;align-items:end}
+.chart-col{display:flex;flex-direction:column;align-items:stretch;height:132px;justify-content:flex-end}
+.chart-value{font-size:.65rem;color:#8f958a;text-align:center;margin-bottom:5px}
+.chart-week{font-size:.62rem;color:#7e857a;text-align:center;margin-top:7px}
 .chart-bar{background:#2e352a;border-radius:5px 5px 2px 2px;min-height:3px;transition:background .15s ease}
 .chart-bar--peak{background:#b8ff6a}
-.chart-axis{display:flex;justify-content:space-between;margin-top:10px;color:#7e857a;font-size:.7rem}
 
-.records{display:grid;grid-template-columns:repeat(3,1fr);gap:16px;margin-top:16px}
+.records{display:grid;grid-template-columns:repeat(2,1fr);gap:16px;margin-top:16px}
 .record dt{color:#a1a69c;font-size:.75rem;text-transform:uppercase;letter-spacing:.12em}
 .record dd{margin:10px 0 0;font-size:1.05rem;color:#f5f5ef}
 .record-figure{display:block;color:#b8ff6a;font-size:1.5rem;font-weight:700;margin-top:4px}
 
 .entry-actions{display:flex;flex-direction:column;align-items:flex-end;gap:8px;align-self:center}
+.icon-button{display:grid;place-items:center;width:30px;height:30px;padding:0;background:none;border:1px solid #30352c;border-radius:9px;color:#7e857a;cursor:pointer;transition:color .15s ease,border-color .15s ease}
+.icon-button:hover:not(:disabled){color:#ff9388;border-color:#5c3d3a;background:none}
 .link{background:none;border:0;padding:2px 4px;font-size:.75rem;font-weight:600;color:#7e857a;cursor:pointer}
 .link:hover:not(:disabled){color:#cdd1c7;background:none}
 .link.danger{color:#ff9388}
@@ -63,5 +63,7 @@ button:disabled{background:#2e352a;color:#8a9182;cursor:not-allowed}
 @media(max-width:700px){
   .stats,.grid,.records{grid-template-columns:1fr}
   main{padding-top:40px}
-  .chart-bars{height:72px;gap:4px}
+  .chart-col{height:104px}
+  .chart-bars{gap:4px}
+  .chart-value,.chart-week{font-size:.55rem}
 }

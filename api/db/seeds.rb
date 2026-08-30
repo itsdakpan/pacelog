@@ -55,8 +55,7 @@ weekly_volume.each_with_index do |volume, week_index|
       started_at: started_at,
       distance_km: session[:km],
       duration_minutes: (session[:km] * session[:pace]).round,
-      notes: note_pool.sample(random: rng),
-      kudos_count: rng.rand(0..12)
+      notes: note_pool.sample(random: rng)
     )
   end
 end

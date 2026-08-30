@@ -9,7 +9,6 @@ export type Activity = {
   distance_km: string | number;
   duration_minutes: number;
   notes: string | null;
-  kudos_count: number;
   pace_per_km: string | number | null;
 };
 
@@ -23,7 +22,6 @@ export type Summary = {
   records: {
     longest_run: (Record_ & { distance_km: number }) | null;
     fastest_pace: (Record_ & { pace_per_km: number }) | null;
-    biggest_week: { week_start: string; distance_km: number } | null;
   };
   weekly_series: { week_start: string; distance_km: number }[];
 };
@@ -33,7 +31,7 @@ export const EMPTY_SUMMARY: Summary = {
   weekly_distance_km: 0,
   activities_count: 0,
   current_streak_weeks: 0,
-  records: { longest_run: null, fastest_pace: null, biggest_week: null },
+  records: { longest_run: null, fastest_pace: null },
   weekly_series: [],
 };
 
@@ -160,10 +158,3 @@ export function deleteActivity(id: number): Promise<void> {
   return request<void>(`/activities/${id}`, { method: "DELETE" });
 }
 
-export function removeKudos(id: number): Promise<{ activity: Activity }> {
-  return request<{ activity: Activity }>(`/activities/${id}/kudos`, { method: "DELETE" });
-}
-
-export function giveKudos(id: number): Promise<{ activity: Activity }> {
-  return request<{ activity: Activity }>(`/activities/${id}/kudos`, { method: "POST" });
-}

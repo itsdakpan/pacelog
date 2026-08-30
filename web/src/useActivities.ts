@@ -1,6 +1,5 @@
 import { useCallback, useEffect, useRef, useState } from "react";
-import { ApiError, EMPTY_SUMMARY, createActivity, deleteActivity, fetchFeed, giveKudos, removeKudos } from "./api";
-import { readLikes, writeLikes } from "./lib/likes";
+import { ApiError, EMPTY_SUMMARY, createActivity, deleteActivity, fetchFeed } from "./api";
 import type { Activity, NewActivity, Summary } from "./api";
 
 const describe = (error: unknown) =>
@@ -16,10 +15,7 @@ export function useActivities() {
   const [feedError, setFeedError] = useState("");
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
-  const [pendingKudos, setPendingKudos] = useState<number[]>([]);
   const [deleting, setDeleting] = useState<number[]>([]);
-  // Which activities this browser has already given kudos to.
-  const [liked, setLiked] = useState<number[]>(readLikes);
 
   // Saves and reloads overlap, so an older response must never overwrite the
   // state a newer one already wrote.
@@ -29,7 +25,6 @@ export function useActivities() {
   // the same stale state value before React re-renders — and `disabled` has not
   // been applied yet either — so a state-based guard lets every click through.
   // A ref is written and read synchronously, so the second click sees the first.
-  const inFlightKudos = useRef<Set<number>>(new Set());
   const inFlightDelete = useRef<Set<number>>(new Set());
   const inFlightSave = useRef(false);
 
@@ -92,34 +87,5 @@ export function useActivities() {
     [load],
   );
 
-  /** Toggles this browser's single kudos on an activity. */
-  const kudos = useCallback(
-    async (id: number) => {
-      if (inFlightKudos.current.has(id)) return;
-      inFlightKudos.current.add(id);
-      const alreadyLiked = liked.includes(id);
-
-      setPendingKudos((ids) => [...ids, id]);
-      try {
-        const { activity } = alreadyLiked ? await removeKudos(id) : await giveKudos(id);
-
-        setActivities((current) =>
-          current.map((item) => (item.id === id ? { ...item, kudos_count: activity.kudos_count } : item)),
-        );
-
-        const next = alreadyLiked ? liked.filter((likedId) => likedId !== id) : [...liked, id];
-        setLiked(next);
-        writeLikes(next);
-        setFeedError("");
-      } catch (failure) {
-        setFeedError(describe(failure));
-      } finally {
-        inFlightKudos.current.delete(id);
-        setPendingKudos((ids) => ids.filter((pending) => pending !== id));
-      }
-    },
-    [liked],
-  );
-
-  return { activities, summary, feedError, loading, saving, pendingKudos, deleting, liked, save, kudos, remove };
+  return { activities, summary, feedError, loading, saving, deleting, save, remove };
 }

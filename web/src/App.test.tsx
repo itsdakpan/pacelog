@@ -1,4 +1,4 @@
-import { act, fireEvent, render, screen, waitFor } from "@testing-library/react";
+import { render, screen, waitFor } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 import App from "./App";
@@ -8,7 +8,7 @@ const summary = (over: Record<string, unknown> = {}) => ({
   weekly_distance_km: 0,
   activities_count: 0,
   current_streak_weeks: 0,
-  records: { longest_run: null, fastest_pace: null, biggest_week: null },
+  records: { longest_run: null, fastest_pace: null },
   weekly_series: [],
   ...over,
 });
@@ -35,7 +35,6 @@ const sampleRun = {
   distance_km: "5.0",
   duration_minutes: 30,
   notes: "Easy effort",
-  kudos_count: 2,
   pace_per_km: "6.0",
 };
 
@@ -74,7 +73,8 @@ describe("loading the feed", () => {
 
     expect(await screen.findByText("Morning run")).toBeInTheDocument();
     expect(screen.getByText("5.0 km")).toBeInTheDocument();
-    expect(screen.getByText("3 wks")).toBeInTheDocument();
+    expect(screen.getByText(/weeks in a row/i)).toBeInTheDocument();
+    expect(screen.getByText("3")).toBeInTheDocument();
   });
 
   it("explains an unreachable API instead of silently showing an empty feed", async () => {
@@ -145,7 +145,7 @@ describe("the dashboard", () => {
     render(<App />);
     await screen.findByText("Morning run");
 
-    const chart = screen.getByLabelText(/weekly distance/i);
+    const chart = screen.getByLabelText(/distance run each week/i);
     expect(chart.querySelectorAll(".chart-bar")).toHaveLength(3);
     expect(chart.querySelectorAll(".chart-bar--peak")).toHaveLength(1);
   });
@@ -157,7 +157,6 @@ describe("the dashboard", () => {
           records: {
             longest_run: { title: "Coast path long", distance_km: 10.9, started_at: sampleRun.started_at },
             fastest_pace: { title: "Park tempo", pace_per_km: 5.0, started_at: sampleRun.started_at },
-            biggest_week: { week_start: "2026-08-10", distance_km: 62.8 },
           },
         }),
       ),
@@ -168,7 +167,6 @@ describe("the dashboard", () => {
     expect(await screen.findByText(/longest run/i)).toBeInTheDocument();
     expect(screen.getByText("10.9 km")).toBeInTheDocument();
     expect(screen.getByText("5:00/km")).toBeInTheDocument();
-    expect(screen.getByText("62.8 km")).toBeInTheDocument();
   });
 
   it("omits the records block entirely when there are none", async () => {
@@ -396,90 +394,3 @@ describe("deleting an entry", () => {
   });
 });
 
-describe("kudos", () => {
-  beforeEach(() => localStorage.clear());
-
-  it("adds a kudos and marks it as given by this visitor", async () => {
-    const user = userEvent.setup();
-    fetchMock
-      .mockResolvedValueOnce(json(feed([sampleRun])))
-      .mockResolvedValueOnce(json({ activity: { ...sampleRun, kudos_count: 3 } }));
-
-    render(<App />);
-    await screen.findByText("Morning run");
-
-    await user.click(screen.getByRole("button", { name: /give kudos to morning run/i }));
-
-    const button = await screen.findByRole("button", { name: /remove your kudos/i });
-    expect(button).toHaveAttribute("aria-pressed", "true");
-    expect(button).toHaveTextContent("3");
-    expect(fetchMock.mock.calls[1][1].method).toBe("POST");
-  });
-
-  it("cannot be given twice — a second click takes it back", async () => {
-    const user = userEvent.setup();
-    fetchMock
-      .mockResolvedValueOnce(json(feed([sampleRun])))
-      .mockResolvedValueOnce(json({ activity: { ...sampleRun, kudos_count: 3 } }))
-      .mockResolvedValueOnce(json({ activity: { ...sampleRun, kudos_count: 2 } }));
-
-    render(<App />);
-    await screen.findByText("Morning run");
-
-    await user.click(screen.getByRole("button", { name: /give kudos to morning run/i }));
-    await user.click(await screen.findByRole("button", { name: /remove your kudos/i }));
-
-    const button = await screen.findByRole("button", { name: /give kudos to morning run/i });
-    expect(button).toHaveAttribute("aria-pressed", "false");
-    expect(button).toHaveTextContent("2");
-
-    const verbs = fetchMock.mock.calls.slice(1).map((call) => call[1].method);
-    expect(verbs).toEqual(["POST", "DELETE"]);
-  });
-
-  it("sends one request even when clicked five times in a row", async () => {
-    // Rapid synchronous clicks: React has not re-rendered between them, so a
-    // state-based guard (and the disabled attribute) would let them all through.
-    fetchMock
-      .mockResolvedValueOnce(json(feed([sampleRun])))
-      .mockResolvedValue(json({ activity: { ...sampleRun, kudos_count: 3 } }));
-
-    render(<App />);
-    const button = await screen.findByRole("button", { name: /give kudos to morning run/i });
-
-    await act(async () => {
-      for (let i = 0; i < 5; i += 1) fireEvent.click(button);
-    });
-
-    await waitFor(() =>
-      expect(fetchMock.mock.calls.filter((call) => call[1]?.method).length).toBeGreaterThan(0),
-    );
-    expect(fetchMock.mock.calls.filter((call) => call[1]?.method === "POST")).toHaveLength(1);
-  });
-
-  it("remembers what this browser already liked across a reload", async () => {
-    localStorage.setItem("pacelog.kudos", JSON.stringify([sampleRun.id]));
-    fetchMock.mockResolvedValue(json(feed([sampleRun])));
-
-    render(<App />);
-
-    expect(await screen.findByRole("button", { name: /remove your kudos/i })).toHaveAttribute(
-      "aria-pressed",
-      "true",
-    );
-  });
-
-  it("surfaces a failure instead of silently doing nothing", async () => {
-    const user = userEvent.setup();
-    fetchMock
-      .mockResolvedValueOnce(json(feed([sampleRun])))
-      .mockRejectedValueOnce(new TypeError("Failed to fetch"));
-
-    render(<App />);
-    await screen.findByText("Morning run");
-
-    await user.click(screen.getByRole("button", { name: /give kudos to morning run/i }));
-
-    expect(await screen.findByText(/can't reach the api/i)).toBeInTheDocument();
-  });
-});

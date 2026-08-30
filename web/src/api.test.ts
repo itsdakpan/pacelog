@@ -1,5 +1,5 @@
 import { beforeEach, describe, expect, it, vi } from "vitest";
-import { ApiError, createActivity, fetchFeed, giveKudos } from "./api";
+import { ApiError, createActivity, fetchFeed } from "./api";
 
 const jsonResponse = (body: unknown, status = 200) =>
   new Response(JSON.stringify(body), {
@@ -189,15 +189,3 @@ describe("createActivity with full detail", () => {
   });
 });
 
-describe("giveKudos", () => {
-  it("posts to the kudos path for the given activity", async () => {
-    const fetchMock = mockFetch();
-    fetchMock.mockResolvedValue(jsonResponse({ activity: { id: 7, kudos_count: 3 } }));
-
-    const { activity } = await giveKudos(7);
-
-    expect(fetchMock.mock.calls[0][0]).toBe("/api/v1/activities/7/kudos");
-    expect(fetchMock.mock.calls[0][1].method).toBe("POST");
-    expect(activity.kudos_count).toBe(3);
-  });
-});

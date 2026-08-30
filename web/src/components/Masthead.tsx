@@ -23,10 +23,9 @@ export function Masthead({ summary }: { summary: Summary }) {
           <strong className="num">{summary.activities_count}</strong>
         </article>
         <article>
-          <small>Streak</small>
-          <strong className="num">
-            {summary.current_streak_weeks} {summary.current_streak_weeks === 1 ? "wk" : "wks"}
-          </strong>
+          <small>Weeks in a row</small>
+          <strong className="num">{summary.current_streak_weeks}</strong>
+          <span className="stat-note">with at least one activity</span>
         </article>
       </section>
     </>

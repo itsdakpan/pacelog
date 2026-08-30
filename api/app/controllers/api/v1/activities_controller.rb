@@ -19,19 +19,6 @@ class Api::V1::ActivitiesController < ApplicationController
     head :no_content
   end
 
-  def kudos
-    activity = Activity.find(params[:id])
-    activity.increment!(:kudos_count)
-    render json: { activity: serialize(activity) }
-  end
-
-  # Paired with #kudos so a visitor can take their kudos back. The floor keeps
-  # a double-send from pushing the count negative.
-  def unkudos
-    activity = Activity.find(params[:id])
-    activity.update!(kudos_count: [ activity.kudos_count - 1, 0 ].max)
-    render json: { activity: serialize(activity) }
-  end
 
   private
 
@@ -40,7 +27,7 @@ class Api::V1::ActivitiesController < ApplicationController
   end
 
   def serialize(activity)
-    activity.as_json(only: %i[id title activity_type started_at distance_km duration_minutes notes kudos_count]).merge(pace_per_km: activity.pace_per_km)
+    activity.as_json(only: %i[id title activity_type started_at distance_km duration_minutes notes]).merge(pace_per_km: activity.pace_per_km)
   end
 
   # Aggregates come from SQL rather than the loaded collection so the summary

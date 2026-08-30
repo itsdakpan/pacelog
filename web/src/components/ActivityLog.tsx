@@ -2,14 +2,19 @@ import { useState } from "react";
 import type { Activity } from "../api";
 import { formatDistance, formatDuration, formatEntryDate, formatPace } from "../lib/format";
 
+
+const TrashIcon = () => (
+  <svg viewBox="0 0 24 24" width="15" height="15" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
+    <path d="M3 6h18M8 6V4a1 1 0 0 1 1-1h6a1 1 0 0 1 1 1v2m2 0v14a1 1 0 0 1-1 1H7a1 1 0 0 1-1-1V6" />
+    <path d="M10 11v6M14 11v6" />
+  </svg>
+);
+
 type Props = {
   activities: Activity[];
   loading: boolean;
   error: string;
-  pendingKudos: number[];
   deleting: number[];
-  liked: number[];
-  onKudos: (id: number) => void;
   onDelete: (id: number) => void;
 };
 
@@ -17,10 +22,7 @@ export function ActivityLog({
   activities,
   loading,
   error,
-  pendingKudos,
   deleting,
-  liked,
-  onKudos,
   onDelete,
 }: Props) {
   // Deleting is irreversible, so it takes two deliberate clicks rather than a
@@ -59,20 +61,6 @@ export function ActivityLog({
           </div>
 
           <div className="entry-actions">
-            <button
-              className={liked.includes(activity.id) ? "kudos kudos--given" : "kudos"}
-              onClick={() => onKudos(activity.id)}
-              disabled={pendingKudos.includes(activity.id)}
-              aria-pressed={liked.includes(activity.id)}
-              aria-label={
-                liked.includes(activity.id)
-                  ? `Remove your kudos from ${activity.title}, ${activity.kudos_count} total`
-                  : `Give kudos to ${activity.title}, ${activity.kudos_count} total`
-              }
-            >
-              {liked.includes(activity.id) ? "♥" : "♡"} {activity.kudos_count}
-            </button>
-
             {confirming === activity.id ? (
               <span className="confirm">
                 <button
@@ -91,11 +79,12 @@ export function ActivityLog({
               </span>
             ) : (
               <button
-                className="link"
+                className="icon-button"
                 onClick={() => setConfirming(activity.id)}
                 aria-label={`Delete ${activity.title}`}
+                title="Delete"
               >
-                Delete
+                <TrashIcon />
               </button>
             )}
           </div>

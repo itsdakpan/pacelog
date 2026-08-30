@@ -38,16 +38,6 @@ class ActivityTest < ActiveSupport::TestCase
     assert_predicate build(duration_minutes: 30.5), :invalid?
   end
 
-  test "defaults kudos_count to zero without clobbering an existing value" do
-    activity = build
-    activity.validate
-    assert_equal 0, activity.kudos_count
-
-    existing = build(kudos_count: 4)
-    existing.validate
-    assert_equal 4, existing.kudos_count
-  end
-
   test "weekly_series returns one bucket per week, zero-filled, oldest first" do
     series = Activity.weekly_series(weeks: 4)
 
@@ -86,15 +76,6 @@ class ActivityTest < ActiveSupport::TestCase
 
     assert_equal "Speedwork", Activity.records[:fastest_pace][:title]
     assert_equal 4.0, Activity.records[:fastest_pace][:pace_per_km]
-  end
-
-  test "records reports the biggest week" do
-    biggest = Activity.records[:biggest_week]
-
-    # long_ride (20km) sits in the previous week and outweighs the current
-    # week's 5km morning_run.
-    assert_equal 20.0, biggest[:distance_km]
-    assert_equal (Time.current.beginning_of_week - 1.week).to_date.to_s, biggest[:week_start]
   end
 
   test "pace_per_km divides duration by distance" do
