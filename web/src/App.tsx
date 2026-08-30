@@ -10,6 +10,9 @@ const EMPTY_SUMMARY: Summary = {
   activities_count: 0,
 };
 
+/** A date input works in YYYY-MM-DD; this is today's value in that form. */
+const todayValue = () => new Date().toISOString().slice(0, 10);
+
 /** Mirrors the model validations so an obvious typo never needs a round trip. */
 function validate(form: NewActivity): string | null {
   if (!form.title.trim()) return "Give the run a name.";
@@ -24,6 +27,9 @@ function validate(form: NewActivity): string | null {
     return "Duration must be a whole number of minutes above 0.";
   }
 
+  if (!form.started_at) return "Pick a date for this activity.";
+  if (new Date(form.started_at) > new Date()) return "You can't log a run in the future.";
+
   return null;
 }
 
@@ -36,6 +42,9 @@ export default function App() {
   const [title, setTitle] = useState("");
   const [distance, setDistance] = useState("");
   const [minutes, setMinutes] = useState("");
+  const [activityType, setActivityType] = useState("run");
+  const [date, setDate] = useState(todayValue);
+  const [notes, setNotes] = useState("");
   const [error, setError] = useState("");
   const [feedError, setFeedError] = useState("");
   const [saving, setSaving] = useState(false);
@@ -69,7 +78,16 @@ export default function App() {
     event.preventDefault();
     if (saving) return; // guards double submits, which used to create duplicates
 
-    const form: NewActivity = { title, distance_km: distance, duration_minutes: minutes };
+    const form: NewActivity = {
+      title,
+      activity_type: activityType,
+      distance_km: distance,
+      duration_minutes: minutes,
+      // A date input yields YYYY-MM-DD; anchor it to midday local time so the
+      // entry cannot slip into an adjacent day when converted to UTC.
+      started_at: date ? new Date(`${date}T12:00:00`).toISOString() : "",
+      notes,
+    };
     const invalid = validate(form);
     if (invalid) {
       setError(invalid);
@@ -83,6 +101,9 @@ export default function App() {
       setTitle("");
       setDistance("");
       setMinutes("");
+      setNotes("");
+      setActivityType("run");
+      setDate(todayValue());
       await load();
     } catch (saveFailure) {
       setError(describe(saveFailure));
@@ -131,11 +152,26 @@ export default function App() {
       </section>
 
       <section className="grid">
-        <form onSubmit={submit}>
+        {/* noValidate: `max` on the date input would otherwise let the browser block
+            submission with its own tooltip, so our validation messages never showed.
+            Keep `max` for the picker's affordance; own the messaging ourselves. */}
+        <form onSubmit={submit} noValidate>
           <h2>Log a run</h2>
           <label>
             Run name
             <input value={title} onChange={(e) => setTitle(e.target.value)} placeholder="Morning run" />
+          </label>
+          <label>
+            Type
+            <select value={activityType} onChange={(e) => setActivityType(e.target.value)}>
+              <option value="run">Run</option>
+              <option value="ride">Ride</option>
+              <option value="walk">Walk</option>
+            </select>
+          </label>
+          <label>
+            Date
+            <input type="date" value={date} max={todayValue()} onChange={(e) => setDate(e.target.value)} />
           </label>
           <label>
             Distance (km)
@@ -155,6 +191,10 @@ export default function App() {
               onChange={(e) => setMinutes(e.target.value)}
               placeholder="30"
             />
+          </label>
+          <label>
+            Notes
+            <input value={notes} onChange={(e) => setNotes(e.target.value)} placeholder="How did it feel?" />
           </label>
           {error && <p className="error">{error}</p>}
           <button disabled={saving}>{saving ? "Saving…" : "Save activity"}</button>

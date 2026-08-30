@@ -206,6 +206,60 @@ describe("saving a run", () => {
   });
 });
 
+describe("logging a past ride", () => {
+  it("submits the chosen type, date and notes", async () => {
+    const user = userEvent.setup();
+    fetchMock
+      .mockResolvedValueOnce(json(feed([])))
+      .mockResolvedValueOnce(json({ activity: sampleRun }, 201))
+      .mockResolvedValueOnce(json(feed([sampleRun])));
+
+    render(<App />);
+    await screen.findByText(/your next run starts here/i);
+
+    await user.type(screen.getByLabelText(/run name/i), "Canal loop");
+    await user.selectOptions(screen.getByLabelText(/type/i), "ride");
+    await user.clear(screen.getByLabelText(/date/i));
+    await user.type(screen.getByLabelText(/date/i), "2026-08-24");
+    await user.type(screen.getByLabelText(/distance/i), "24");
+    await user.type(screen.getByLabelText(/duration/i), "62");
+    await user.type(screen.getByLabelText(/notes/i), "Windy");
+    await user.click(screen.getByRole("button", { name: /save activity/i }));
+
+    await waitFor(() => expect(fetchMock.mock.calls.length).toBeGreaterThan(1));
+    const sent = JSON.parse(fetchMock.mock.calls[1][1].body).activity;
+    expect(sent.activity_type).toBe("ride");
+    expect(sent.notes).toBe("Windy");
+    expect(new Date(sent.started_at).getFullYear()).toBe(2026);
+  });
+
+  it("defaults the date to today so the common case needs no input", async () => {
+    fetchMock.mockResolvedValue(json(feed([])));
+    render(<App />);
+
+    const today = new Date().toISOString().slice(0, 10);
+    expect(await screen.findByLabelText(/date/i)).toHaveValue(today);
+  });
+
+  it("rejects a future date before making a request", async () => {
+    const user = userEvent.setup();
+    fetchMock.mockResolvedValueOnce(json(feed([])));
+
+    render(<App />);
+    await screen.findByText(/your next run starts here/i);
+
+    await user.type(screen.getByLabelText(/run name/i), "Tomorrow run");
+    await user.clear(screen.getByLabelText(/date/i));
+    await user.type(screen.getByLabelText(/date/i), "2099-01-01");
+    await user.type(screen.getByLabelText(/distance/i), "5");
+    await user.type(screen.getByLabelText(/duration/i), "30");
+    await user.click(screen.getByRole("button", { name: /save activity/i }));
+
+    expect(await screen.findByText(/can't log a run in the future/i)).toBeInTheDocument();
+    expect(fetchMock.mock.calls.filter((call) => call[1]?.method === "POST")).toHaveLength(0);
+  });
+});
+
 describe("kudos", () => {
   it("updates the count from the server response", async () => {
     const user = userEvent.setup();

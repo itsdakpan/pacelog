@@ -2,6 +2,8 @@ export type Activity = {
   id: number;
   title: string;
   activity_type: string;
+  /** ISO 8601, as serialised by Rails. */
+  started_at: string;
   // Rails serialises decimals as strings, so these arrive as strings even
   // though they are numbers conceptually.
   distance_km: string | number;
@@ -21,8 +23,12 @@ export type Feed = { activities: Activity[]; summary: Summary };
 
 export type NewActivity = {
   title: string;
+  activity_type: string;
   distance_km: string;
   duration_minutes: string;
+  /** ISO 8601. Chosen in the form, so past activities can be logged. */
+  started_at: string;
+  notes: string;
 };
 
 /**
@@ -111,16 +117,19 @@ export function fetchFeed(): Promise<Feed> {
 }
 
 export function createActivity(input: NewActivity): Promise<{ activity: Activity }> {
+  const notes = input.notes.trim();
+
   return request<{ activity: Activity }>("/activities", {
     method: "POST",
     headers: { "Content-Type": "application/json" },
     body: JSON.stringify({
       activity: {
         title: input.title.trim(),
-        activity_type: "run",
+        activity_type: input.activity_type,
         distance_km: input.distance_km,
         duration_minutes: input.duration_minutes,
-        started_at: new Date().toISOString(),
+        started_at: input.started_at,
+        notes: notes === "" ? null : notes,
       },
     }),
   });
