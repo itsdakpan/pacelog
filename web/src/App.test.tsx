@@ -24,9 +24,10 @@ const sampleRun = {
   id: 1,
   title: "Morning run",
   activity_type: "run",
+  started_at: "2026-08-25T06:30:00.000Z",
   distance_km: "5.0",
   duration_minutes: 30,
-  notes: null,
+  notes: "Easy effort",
   kudos_count: 2,
   pace_per_km: "6.0",
 };
@@ -57,7 +58,7 @@ describe("loading the feed", () => {
     render(<App />);
 
     expect(await screen.findByText("Morning run")).toBeInTheDocument();
-    expect(screen.getByText("5.0 km · 30 min · 6.00 min/km")).toBeInTheDocument();
+    expect(screen.getByText("5.0 km")).toBeInTheDocument();
     expect(screen.getByText("1 logged")).toBeInTheDocument();
   });
 
@@ -85,6 +86,31 @@ describe("loading the feed", () => {
     render(<App />);
 
     expect(await screen.findByText(/your next run starts here/i)).toBeInTheDocument();
+  });
+});
+
+describe("the log line", () => {
+  it("shows the date, notes and runner-readable numbers", async () => {
+    fetchMock.mockResolvedValue(json(feed([sampleRun])));
+
+    render(<App />);
+
+    expect(await screen.findByText("TUE 25 AUG")).toBeInTheDocument();
+    expect(screen.getByText("Easy effort")).toBeInTheDocument();
+    expect(screen.getByText("5.0 km")).toBeInTheDocument();
+    expect(screen.getByText("30:00")).toBeInTheDocument();
+    // 6.0 decimal minutes reads as 6:00/km, never "6.00 min/km".
+    expect(screen.getByText("6:00/km")).toBeInTheDocument();
+    expect(screen.queryByText(/min\/km/)).not.toBeInTheDocument();
+  });
+
+  it("omits the notes line when an activity has none", async () => {
+    fetchMock.mockResolvedValue(json(feed([{ ...sampleRun, notes: null }])));
+
+    render(<App />);
+    await screen.findByText("Morning run");
+
+    expect(screen.queryByText("Easy effort")).not.toBeInTheDocument();
   });
 });
 

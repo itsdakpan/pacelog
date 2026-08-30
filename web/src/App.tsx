@@ -1,6 +1,7 @@
 import { useCallback, useEffect, useRef, useState } from "react";
 import type { FormEvent } from "react";
 import { ApiError, createActivity, fetchFeed, giveKudos } from "./api";
+import { formatDistance, formatDuration, formatEntryDate, formatPace } from "./lib/format";
 import type { Activity, NewActivity, Summary } from "./api";
 import "./App.css";
 
@@ -212,17 +213,21 @@ export default function App() {
             activities.map((activity) => (
               <article className="activity" key={activity.id}>
                 <div>
+                  <small className="entry-date">{formatEntryDate(activity.started_at)}</small>
                   <small>{activity.activity_type}</small>
                   <h3>{activity.title}</h3>
-                  <p>
-                    {Number(activity.distance_km).toFixed(1)} km · {activity.duration_minutes} min ·{" "}
-                    {activity.pace_per_km === null ? "—" : Number(activity.pace_per_km).toFixed(2)} min/km
+                  {activity.notes && <p className="entry-notes">{activity.notes}</p>}
+                  <p className="entry-figures">
+                    <span>{formatDistance(activity.distance_km)}</span>
+                    <span>{formatDuration(activity.duration_minutes)}</span>
+                    <span>{formatPace(activity.pace_per_km)}</span>
                   </p>
                 </div>
                 <button
                   className="kudos"
                   onClick={() => kudos(activity.id)}
                   disabled={pendingKudos.includes(activity.id)}
+                  aria-label={`Give kudos to ${activity.title}, ${activity.kudos_count} so far`}
                 >
                   ♥ {activity.kudos_count}
                 </button>
