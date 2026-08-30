@@ -78,15 +78,6 @@ class ActivityTest < ActiveSupport::TestCase
     assert_equal 4.0, Activity.records[:fastest_pace][:pace_per_km]
   end
 
-  test "effort must be a whole number from 1 to 10 when given" do
-    assert_predicate build(effort: nil), :valid?, "effort is optional"
-    assert_predicate build(effort: 1), :valid?
-    assert_predicate build(effort: 10), :valid?
-    assert_predicate build(effort: 0), :invalid?
-    assert_predicate build(effort: 11), :invalid?
-    assert_predicate build(effort: 5.5), :invalid?
-  end
-
   test "pace_trend compares the last four weeks with the four before" do
     Activity.delete_all
     # Recent block: 5km in 25 min = 5:00/km. Earlier block: 5km in 30 min = 6:00/km.

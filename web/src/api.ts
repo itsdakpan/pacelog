@@ -9,7 +9,6 @@ export type Activity = {
   distance_km: string | number;
   duration_minutes: number;
   notes: string | null;
-  effort: number | null;
   pace_per_km: string | number | null;
 };
 
@@ -53,8 +52,6 @@ export type NewActivity = {
   /** ISO 8601. Chosen in the form, so past activities can be logged. */
   started_at: string;
   notes: string;
-  /** Perceived effort 1-10, or "" when not rated. */
-  effort: string;
 };
 
 /**
@@ -159,7 +156,6 @@ export function createActivity(input: NewActivity): Promise<{ activity: Activity
         duration_minutes: input.duration_minutes,
         started_at: input.started_at,
         notes: notes === "" ? null : notes,
-        effort: input.effort === "" ? null : Number(input.effort),
       },
     }),
   });

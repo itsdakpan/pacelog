@@ -23,11 +23,11 @@ class Api::V1::ActivitiesController < ApplicationController
   private
 
   def activity_params
-    params.require(:activity).permit(:title, :activity_type, :started_at, :distance_km, :duration_minutes, :notes, :effort)
+    params.require(:activity).permit(:title, :activity_type, :started_at, :distance_km, :duration_minutes, :notes)
   end
 
   def serialize(activity)
-    activity.as_json(only: %i[id title activity_type started_at distance_km duration_minutes notes effort]).merge(pace_per_km: activity.pace_per_km)
+    activity.as_json(only: %i[id title activity_type started_at distance_km duration_minutes notes]).merge(pace_per_km: activity.pace_per_km)
   end
 
   # Aggregates come from SQL rather than the loaded collection so the summary

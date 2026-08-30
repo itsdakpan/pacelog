@@ -37,16 +37,16 @@ weekly_volume.each_with_index do |volume, week_index|
   easy_km  = ((volume - long_km - tempo_km) / 2.0).round(1)
 
   sessions = [
-    { day: 1, km: easy_km,  pace: 6.05, title: easy_titles.sample(random: rng),  type: "run", effort: 3 },
-    { day: 3, km: tempo_km, pace: 5.05, title: tempo_titles.sample(random: rng), type: "run", effort: 8 },
-    { day: 5, km: easy_km,  pace: 6.15, title: easy_titles.sample(random: rng),  type: "run", effort: 3 },
-    { day: 6, km: long_km,  pace: 6.30, title: long_titles.sample(random: rng),  type: "run", effort: 5 }
+    { day: 1, km: easy_km,  pace: 6.05, title: easy_titles.sample(random: rng),  type: "run" },
+    { day: 3, km: tempo_km, pace: 5.05, title: tempo_titles.sample(random: rng), type: "run" },
+    { day: 5, km: easy_km,  pace: 6.15, title: easy_titles.sample(random: rng),  type: "run" },
+    { day: 6, km: long_km,  pace: 6.30, title: long_titles.sample(random: rng),  type: "run" }
   ]
 
   # Cross-training keeps the type badges from being uniformly "run".
   case week_index % 4
-  when 1 then sessions << { day: 2, km: jitter.call(24, 0.15), pace: 2.6, title: "Recovery spin", type: "ride", effort: 2 }
-  when 2 then sessions << { day: 0, km: jitter.call(4, 0.2), pace: 12.5, title: "Evening walk", type: "walk", effort: 1 }
+  when 1 then sessions << { day: 2, km: jitter.call(24, 0.15), pace: 2.6, title: "Recovery spin", type: "ride" }
+  when 2 then sessions << { day: 0, km: jitter.call(4, 0.2), pace: 12.5, title: "Evening walk", type: "walk" }
   end
 
   sessions.each do |session|
@@ -59,8 +59,7 @@ weekly_volume.each_with_index do |volume, week_index|
       started_at: started_at,
       distance_km: session[:km],
       duration_minutes: (session[:km] * session[:pace] * fitness).round,
-      notes: note_pool.sample(random: rng),
-      effort: session[:effort]
+      notes: note_pool.sample(random: rng)
     )
   end
 end

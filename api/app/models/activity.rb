@@ -5,8 +5,6 @@ class Activity < ApplicationRecord
   validates :activity_type, inclusion: { in: ACTIVITY_TYPES }
   validates :distance_km, numericality: { greater_than: 0 }
   validates :duration_minutes, numericality: { only_integer: true, greater_than: 0 }
-  # Perceived effort, borrowed from the RPE scale. Optional on older entries.
-  validates :effort, numericality: { only_integer: true, in: 1..10 }, allow_nil: true
 
   WEEKS_IN_BLOCK = 12
 

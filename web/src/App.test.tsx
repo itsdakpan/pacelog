@@ -37,7 +37,6 @@ const sampleRun = {
   distance_km: "5.0",
   duration_minutes: 30,
   notes: "Easy effort",
-  effort: 3,
   pace_per_km: "6.0",
 };
 
@@ -355,7 +354,6 @@ describe("logging a past ride", () => {
     await user.type(screen.getByLabelText(/date/i), "2026-08-24");
     await user.type(screen.getByLabelText(/distance/i), "24");
     await user.type(screen.getByLabelText(/duration/i), "62");
-    await user.selectOptions(screen.getByLabelText(/effort/i), "6");
     await user.type(screen.getByLabelText(/notes/i), "Windy");
     await user.click(saveButton());
 
@@ -363,7 +361,6 @@ describe("logging a past ride", () => {
     const sent = JSON.parse(fetchMock.mock.calls[1][1].body).activity;
     expect(sent.activity_type).toBe("ride");
     expect(sent.notes).toBe("Windy");
-    expect(sent.effort).toBe(6);
     expect(new Date(sent.started_at).getFullYear()).toBe(2026);
   });
 

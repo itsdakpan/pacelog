@@ -1,10 +1,14 @@
 import type { Summary } from "../api";
+import { Logo } from "./Logo";
 
 export function Masthead({ summary }: { summary: Summary }) {
   return (
     <>
       <header>
-        <p>PACELOG</p>
+        <p className="wordmark">
+          <Logo />
+          <span>PACELOG</span>
+        </p>
         <h1>Every run tells a story.</h1>
         <span>Track your movement, build your streak, and celebrate the miles.</span>
       </header>
