@@ -13,10 +13,28 @@ export type Activity = {
   pace_per_km: string | number | null;
 };
 
+export type Record_ = { title: string; started_at: string } | null;
+
 export type Summary = {
   total_distance_km: number;
   weekly_distance_km: number;
   activities_count: number;
+  current_streak_weeks: number;
+  records: {
+    longest_run: (Record_ & { distance_km: number }) | null;
+    fastest_pace: (Record_ & { pace_per_km: number }) | null;
+    biggest_week: { week_start: string; distance_km: number } | null;
+  };
+  weekly_series: { week_start: string; distance_km: number }[];
+};
+
+export const EMPTY_SUMMARY: Summary = {
+  total_distance_km: 0,
+  weekly_distance_km: 0,
+  activities_count: 0,
+  current_streak_weeks: 0,
+  records: { longest_run: null, fastest_pace: null, biggest_week: null },
+  weekly_series: [],
 };
 
 export type Feed = { activities: Activity[]; summary: Summary };
