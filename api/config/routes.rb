@@ -9,6 +9,7 @@ Rails.application.routes.draw do
     namespace :v1 do
       resources :activities, only: %i[index create destroy]
       post "activities/:id/kudos", to: "activities#kudos", as: :kudos_activity
+      delete "activities/:id/kudos", to: "activities#unkudos", as: :unkudos_activity
     end
   end
 

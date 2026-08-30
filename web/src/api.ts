@@ -160,6 +160,10 @@ export function deleteActivity(id: number): Promise<void> {
   return request<void>(`/activities/${id}`, { method: "DELETE" });
 }
 
+export function removeKudos(id: number): Promise<{ activity: Activity }> {
+  return request<{ activity: Activity }>(`/activities/${id}/kudos`, { method: "DELETE" });
+}
+
 export function giveKudos(id: number): Promise<{ activity: Activity }> {
   return request<{ activity: Activity }>(`/activities/${id}/kudos`, { method: "POST" });
 }

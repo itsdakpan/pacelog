@@ -1,5 +1,6 @@
 import { useCallback, useEffect, useRef, useState } from "react";
-import { ApiError, EMPTY_SUMMARY, createActivity, deleteActivity, fetchFeed, giveKudos } from "./api";
+import { ApiError, EMPTY_SUMMARY, createActivity, deleteActivity, fetchFeed, giveKudos, removeKudos } from "./api";
+import { readLikes, writeLikes } from "./lib/likes";
 import type { Activity, NewActivity, Summary } from "./api";
 
 const describe = (error: unknown) =>
@@ -17,10 +18,20 @@ export function useActivities() {
   const [saving, setSaving] = useState(false);
   const [pendingKudos, setPendingKudos] = useState<number[]>([]);
   const [deleting, setDeleting] = useState<number[]>([]);
+  // Which activities this browser has already given kudos to.
+  const [liked, setLiked] = useState<number[]>(readLikes);
 
   // Saves and reloads overlap, so an older response must never overwrite the
   // state a newer one already wrote.
   const latestLoad = useRef(0);
+
+  // In-flight guards live in refs, not state. Rapid synchronous clicks all read
+  // the same stale state value before React re-renders — and `disabled` has not
+  // been applied yet either — so a state-based guard lets every click through.
+  // A ref is written and read synchronously, so the second click sees the first.
+  const inFlightKudos = useRef<Set<number>>(new Set());
+  const inFlightDelete = useRef<Set<number>>(new Set());
+  const inFlightSave = useRef(false);
 
   const load = useCallback(async () => {
     const token = ++latestLoad.current;
@@ -46,7 +57,8 @@ export function useActivities() {
   /** Resolves to an error message, or null when the activity was saved. */
   const save = useCallback(
     async (form: NewActivity): Promise<string | null> => {
-      if (saving) return null; // guards double submits, which used to duplicate
+      if (inFlightSave.current) return null; // guards double submits
+      inFlightSave.current = true;
       setSaving(true);
       try {
         await createActivity(form);
@@ -55,15 +67,17 @@ export function useActivities() {
       } catch (failure) {
         return describe(failure);
       } finally {
+        inFlightSave.current = false;
         setSaving(false);
       }
     },
-    [load, saving],
+    [load],
   );
 
   const remove = useCallback(
     async (id: number) => {
-      if (deleting.includes(id)) return;
+      if (inFlightDelete.current.has(id)) return;
+      inFlightDelete.current.add(id);
       setDeleting((ids) => [...ids, id]);
       try {
         await deleteActivity(id);
@@ -71,30 +85,41 @@ export function useActivities() {
       } catch (failure) {
         setFeedError(describe(failure));
       } finally {
+        inFlightDelete.current.delete(id);
         setDeleting((ids) => ids.filter((pending) => pending !== id));
       }
     },
-    [deleting, load],
+    [load],
   );
 
+  /** Toggles this browser's single kudos on an activity. */
   const kudos = useCallback(
     async (id: number) => {
-      if (pendingKudos.includes(id)) return;
+      if (inFlightKudos.current.has(id)) return;
+      inFlightKudos.current.add(id);
+      const alreadyLiked = liked.includes(id);
+
       setPendingKudos((ids) => [...ids, id]);
       try {
-        const { activity } = await giveKudos(id);
+        const { activity } = alreadyLiked ? await removeKudos(id) : await giveKudos(id);
+
         setActivities((current) =>
           current.map((item) => (item.id === id ? { ...item, kudos_count: activity.kudos_count } : item)),
         );
+
+        const next = alreadyLiked ? liked.filter((likedId) => likedId !== id) : [...liked, id];
+        setLiked(next);
+        writeLikes(next);
         setFeedError("");
       } catch (failure) {
         setFeedError(describe(failure));
       } finally {
+        inFlightKudos.current.delete(id);
         setPendingKudos((ids) => ids.filter((pending) => pending !== id));
       }
     },
-    [pendingKudos],
+    [liked],
   );
 
-  return { activities, summary, feedError, loading, saving, pendingKudos, deleting, save, kudos, remove };
+  return { activities, summary, feedError, loading, saving, pendingKudos, deleting, liked, save, kudos, remove };
 }

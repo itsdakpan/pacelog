@@ -127,6 +127,25 @@ class Api::V1::ActivitiesControllerTest < ActionDispatch::IntegrationTest
     assert_equal 2, activity.reload.kudos_count
   end
 
+  test "unkudos decrements the counter" do
+    activity = activities(:morning_run) # starts at 1
+
+    delete api_v1_unkudos_activity_url(activity)
+
+    assert_response :success
+    assert_equal 0, JSON.parse(response.body)["activity"]["kudos_count"]
+    assert_equal 0, activity.reload.kudos_count
+  end
+
+  test "unkudos never drives the counter below zero" do
+    activity = activities(:long_ride) # starts at 0
+
+    delete api_v1_unkudos_activity_url(activity)
+
+    assert_response :success
+    assert_equal 0, activity.reload.kudos_count
+  end
+
   test "kudos on a missing activity responds 404 rather than a 500" do
     post api_v1_kudos_activity_url(id: 0)
 

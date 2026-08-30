@@ -8,6 +8,7 @@ type Props = {
   error: string;
   pendingKudos: number[];
   deleting: number[];
+  liked: number[];
   onKudos: (id: number) => void;
   onDelete: (id: number) => void;
 };
@@ -18,6 +19,7 @@ export function ActivityLog({
   error,
   pendingKudos,
   deleting,
+  liked,
   onKudos,
   onDelete,
 }: Props) {
@@ -58,12 +60,17 @@ export function ActivityLog({
 
           <div className="entry-actions">
             <button
-              className="kudos"
+              className={liked.includes(activity.id) ? "kudos kudos--given" : "kudos"}
               onClick={() => onKudos(activity.id)}
               disabled={pendingKudos.includes(activity.id)}
-              aria-label={`Give kudos to ${activity.title}, ${activity.kudos_count} so far`}
+              aria-pressed={liked.includes(activity.id)}
+              aria-label={
+                liked.includes(activity.id)
+                  ? `Remove your kudos from ${activity.title}, ${activity.kudos_count} total`
+                  : `Give kudos to ${activity.title}, ${activity.kudos_count} total`
+              }
             >
-              ♥ {activity.kudos_count}
+              {liked.includes(activity.id) ? "♥" : "♡"} {activity.kudos_count}
             </button>
 
             {confirming === activity.id ? (

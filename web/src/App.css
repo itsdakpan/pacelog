@@ -24,6 +24,8 @@ button:disabled{background:#2e352a;color:#8a9182;cursor:not-allowed}
 .activity p{margin:0;font-size:.9rem}
 .kudos{align-self:center;background:#2e352a;color:#dce5d5;font-weight:700}
 .kudos:hover:not(:disabled){background:#3a4435;color:#eaf5e2}
+.kudos--given{background:#b8ff6a;color:#14200a}
+.kudos--given:hover:not(:disabled){background:#a5ef55;color:#14200a}
 .kudos:disabled{background:#23291f;color:#6f7669;cursor:progress}
 .error{color:#ff9388;margin:18px 0 0}
 

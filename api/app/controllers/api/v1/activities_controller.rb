@@ -25,6 +25,14 @@ class Api::V1::ActivitiesController < ApplicationController
     render json: { activity: serialize(activity) }
   end
 
+  # Paired with #kudos so a visitor can take their kudos back. The floor keeps
+  # a double-send from pushing the count negative.
+  def unkudos
+    activity = Activity.find(params[:id])
+    activity.update!(kudos_count: [ activity.kudos_count - 1, 0 ].max)
+    render json: { activity: serialize(activity) }
+  end
+
   private
 
   def activity_params

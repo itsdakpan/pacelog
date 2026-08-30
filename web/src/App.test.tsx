@@ -1,4 +1,4 @@
-import { render, screen, waitFor } from "@testing-library/react";
+import { act, fireEvent, render, screen, waitFor } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 import App from "./App";
@@ -397,7 +397,9 @@ describe("deleting an entry", () => {
 });
 
 describe("kudos", () => {
-  it("updates the count from the server response", async () => {
+  beforeEach(() => localStorage.clear());
+
+  it("adds a kudos and marks it as given by this visitor", async () => {
     const user = userEvent.setup();
     fetchMock
       .mockResolvedValueOnce(json(feed([sampleRun])))
@@ -408,8 +410,63 @@ describe("kudos", () => {
 
     await user.click(screen.getByRole("button", { name: /give kudos to morning run/i }));
 
-    expect(await screen.findByRole("button", { name: /3 so far/i })).toBeInTheDocument();
-    expect(fetchMock.mock.calls[1][0]).toBe("/api/v1/activities/1/kudos");
+    const button = await screen.findByRole("button", { name: /remove your kudos/i });
+    expect(button).toHaveAttribute("aria-pressed", "true");
+    expect(button).toHaveTextContent("3");
+    expect(fetchMock.mock.calls[1][1].method).toBe("POST");
+  });
+
+  it("cannot be given twice — a second click takes it back", async () => {
+    const user = userEvent.setup();
+    fetchMock
+      .mockResolvedValueOnce(json(feed([sampleRun])))
+      .mockResolvedValueOnce(json({ activity: { ...sampleRun, kudos_count: 3 } }))
+      .mockResolvedValueOnce(json({ activity: { ...sampleRun, kudos_count: 2 } }));
+
+    render(<App />);
+    await screen.findByText("Morning run");
+
+    await user.click(screen.getByRole("button", { name: /give kudos to morning run/i }));
+    await user.click(await screen.findByRole("button", { name: /remove your kudos/i }));
+
+    const button = await screen.findByRole("button", { name: /give kudos to morning run/i });
+    expect(button).toHaveAttribute("aria-pressed", "false");
+    expect(button).toHaveTextContent("2");
+
+    const verbs = fetchMock.mock.calls.slice(1).map((call) => call[1].method);
+    expect(verbs).toEqual(["POST", "DELETE"]);
+  });
+
+  it("sends one request even when clicked five times in a row", async () => {
+    // Rapid synchronous clicks: React has not re-rendered between them, so a
+    // state-based guard (and the disabled attribute) would let them all through.
+    fetchMock
+      .mockResolvedValueOnce(json(feed([sampleRun])))
+      .mockResolvedValue(json({ activity: { ...sampleRun, kudos_count: 3 } }));
+
+    render(<App />);
+    const button = await screen.findByRole("button", { name: /give kudos to morning run/i });
+
+    await act(async () => {
+      for (let i = 0; i < 5; i += 1) fireEvent.click(button);
+    });
+
+    await waitFor(() =>
+      expect(fetchMock.mock.calls.filter((call) => call[1]?.method).length).toBeGreaterThan(0),
+    );
+    expect(fetchMock.mock.calls.filter((call) => call[1]?.method === "POST")).toHaveLength(1);
+  });
+
+  it("remembers what this browser already liked across a reload", async () => {
+    localStorage.setItem("pacelog.kudos", JSON.stringify([sampleRun.id]));
+    fetchMock.mockResolvedValue(json(feed([sampleRun])));
+
+    render(<App />);
+
+    expect(await screen.findByRole("button", { name: /remove your kudos/i })).toHaveAttribute(
+      "aria-pressed",
+      "true",
+    );
   });
 
   it("surfaces a failure instead of silently doing nothing", async () => {
