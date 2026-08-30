@@ -18,14 +18,14 @@ export function PersonalRecords({ records }: { records: Summary["records"] }) {
 
   return (
     <dl className="records">
-      {longest && (
-        <Record label="Longest run" name={longest.title} figure={`${longest.distance_km} km`} />
-      )}
-      {fastest && (
-        <Record label="Fastest pace" name={fastest.title} figure={paceLabel(fastest.pace_per_km)} />
-      )}
+      {longest && <Record label="Longest run" name={longest.title} figure={`${longest.distance_km} km`} />}
+      {fastest && <Record label="Fastest pace" name={fastest.title} figure={paceLabel(fastest.pace_per_km)} />}
       {biggest && (
-        <Record label="Biggest week" name={shortDate(biggest.week_start)} figure={`${biggest.distance_km} km`} />
+        <Record
+          label="Biggest week"
+          name={`Week of ${shortDate(biggest.week_start)}`}
+          figure={`${biggest.distance_km} km`}
+        />
       )}
     </dl>
   );
@@ -36,7 +36,8 @@ function Record({ label, name, figure }: { label: string; name: string; figure: 
     <div className="record">
       <dt>{label}</dt>
       <dd>
-        {name} <span className="num record-figure">{figure}</span>
+        {name}
+        <span className="num record-figure">{figure}</span>
       </dd>
     </div>
   );

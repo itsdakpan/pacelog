@@ -11,46 +11,42 @@ type Props = {
 
 export function ActivityLog({ activities, loading, error, pendingKudos, onKudos }: Props) {
   return (
-    <section className="log" aria-label="Activity log">
-      <div className="log-head">
-        <span>Date</span>
-        <span>Session</span>
-        <span className="r">Dist</span>
-        <span className="r">Time</span>
-        <span className="r">Pace</span>
-        <span className="r">♥</span>
+    <section className="feed">
+      <div className="feed-title">
+        <h2>Recent activity</h2>
+        <small>{activities.length} logged</small>
       </div>
 
       {error && (
-        <p className="callout" role="status">
+        <p className="error" role="status">
           {error}
         </p>
       )}
 
       {loading && !error && <Skeleton />}
 
-      {!loading && !error && activities.length === 0 && (
-        <p className="empty">Nothing logged yet. Your first entry goes in the form on the left.</p>
-      )}
+      {!loading && !error && activities.length === 0 && <p className="empty">Your next run starts here.</p>}
 
       {activities.map((activity) => (
-        <article className="entry" key={activity.id}>
-          <span className="num entry-date">{formatEntryDate(activity.started_at)}</span>
-          <span className="entry-session">
-            <span className="entry-sport">{activity.activity_type}</span>
-            <span className="entry-title">{activity.title}</span>
-            {activity.notes && <span className="entry-notes">{activity.notes}</span>}
-          </span>
-          <span className="num entry-figure">{formatDistance(activity.distance_km)}</span>
-          <span className="num entry-figure">{formatDuration(activity.duration_minutes)}</span>
-          <span className="num entry-pace">{formatPace(activity.pace_per_km)}</span>
+        <article className="activity" key={activity.id}>
+          <div>
+            <span className="entry-date num">{formatEntryDate(activity.started_at)}</span>
+            <small>{activity.activity_type}</small>
+            <h3>{activity.title}</h3>
+            <p className="entry-figures num">
+              <span>{formatDistance(activity.distance_km)}</span>
+              <span>{formatDuration(activity.duration_minutes)}</span>
+              <span>{formatPace(activity.pace_per_km)}</span>
+            </p>
+            {activity.notes && <p className="entry-notes">{activity.notes}</p>}
+          </div>
           <button
             className="kudos"
             onClick={() => onKudos(activity.id)}
             disabled={pendingKudos.includes(activity.id)}
             aria-label={`Give kudos to ${activity.title}, ${activity.kudos_count} so far`}
           >
-            {activity.kudos_count}
+            ♥ {activity.kudos_count}
           </button>
         </article>
       ))}
@@ -58,18 +54,15 @@ export function ActivityLog({ activities, loading, error, pendingKudos, onKudos 
   );
 }
 
-/** Shaped like the rows it replaces, so the page does not jump when data lands. */
+/** Shaped like the rows it replaces, so the feed does not jump when data lands. */
 function Skeleton() {
   return (
     <div aria-hidden="true">
-      {[0, 1, 2, 3, 4].map((row) => (
-        <div className="entry entry--skeleton" key={row}>
-          <span className="shim" style={{ width: "72%" }} />
-          <span className="shim" style={{ width: "46%" }} />
-          <span className="shim" style={{ width: "80%" }} />
-          <span className="shim" style={{ width: "80%" }} />
-          <span className="shim" style={{ width: "90%" }} />
-          <span className="shim" style={{ width: "60%" }} />
+      {[0, 1, 2, 3].map((row) => (
+        <div className="skeleton-row" key={row}>
+          <span className="shim" style={{ width: "22%" }} />
+          <span className="shim" style={{ width: "52%" }} />
+          <span className="shim" style={{ width: "38%" }} />
         </div>
       ))}
     </div>

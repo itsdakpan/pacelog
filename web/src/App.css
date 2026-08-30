@@ -1,203 +1,57 @@
-.page { max-width: 1120px; margin: auto; padding: 52px 40px 96px; }
+main{max-width:1000px;margin:auto;padding:64px 24px}
+header{max-width:650px}
+header>p,.activity small{color:#b8ff6a;text-transform:uppercase;letter-spacing:.15em;font-size:.75rem;font-weight:700}
+h1{font-size:clamp(3rem,8vw,6rem);line-height:.95;letter-spacing:-.07em;margin:.6rem 0 1rem}
+header>span,.activity p,.empty{color:#b8b9b1}
+.stats,.grid{display:grid;gap:16px;margin-top:48px}
+.stats{grid-template-columns:repeat(4,1fr)}
+.stats article,form,.feed,.chart,.record{background:#1b1e19;border:1px solid #30352c;border-radius:18px;padding:24px}
+.stats small{color:#a1a69c}
+strong{display:block;font-size:2rem;margin-top:10px}
+.grid{grid-template-columns:minmax(260px,.8fr) minmax(0,1.2fr);align-items:start}
+h2{margin-top:0}
+label{display:block;color:#cdd1c7;font-size:.85rem;margin:18px 0}
+input,select{width:100%;margin-top:7px;padding:12px;background:#10120f;color:white;border:1px solid #41473b;border-radius:9px}
+input:hover,select:hover{border-color:#5a6150}
+button{border:0;border-radius:9px;padding:12px 16px;background:#b8ff6a;color:#14200a;font-weight:800;cursor:pointer;transition:background .15s ease}
+button:hover:not(:disabled){background:#c9ff8a}
+button:disabled{background:#2e352a;color:#8a9182;cursor:not-allowed}
+.feed-title,.activity{display:flex;justify-content:space-between;gap:16px}
+.feed-title{align-items:center}
+.feed-title small{color:#a1a69c}
+.activity{padding:18px 0;border-top:1px solid #30352c}
+.activity h3{margin:4px 0}
+.activity p{margin:0;font-size:.9rem}
+.kudos{align-self:center;background:#2e352a;color:#dce5d5;font-weight:700}
+.kudos:hover:not(:disabled){background:#3a4435;color:#eaf5e2}
+.kudos:disabled{background:#23291f;color:#6f7669;cursor:progress}
+.error{color:#ff9388;margin:18px 0 0}
 
-/* ---- Masthead + pace band ---------------------------------------------- */
-.masthead {
-  display: grid;
-  grid-template-columns: 1fr auto;
-  gap: 40px;
-  align-items: end;
-  border-bottom: 2px solid var(--ink);
-  padding-bottom: 26px;
-}
-.eyebrow {
-  font-family: var(--mono);
-  font-size: .64rem;
-  letter-spacing: .24em;
-  text-transform: uppercase;
-  color: var(--muted);
-  margin: 0;
-}
-.masthead h1 {
-  font-family: var(--serif);
-  font-weight: 400;
-  font-size: clamp(2.6rem, 5.4vw, 4.2rem);
-  line-height: .95;
-  letter-spacing: -.015em;
-  margin: .3em 0 0;
-}
-/* The band is the signature: a paper pace strip, boxed like the real thing. */
-.band {
-  display: flex;
-  margin: 0;
-  border: 1.5px solid var(--ink);
-  border-radius: 3px;
-  overflow: hidden;
-  background: var(--surface);
-}
-.band-cell { padding: 9px 14px; border-right: 1px solid var(--rule); text-align: center; }
-.band-cell:last-child { border-right: 0; }
-.band-cell dd { margin: 0; font-size: .95rem; font-weight: 500; }
-.band-cell dt {
-  font-family: var(--mono);
-  font-size: .52rem;
-  letter-spacing: .14em;
-  text-transform: uppercase;
-  color: var(--muted);
-  margin-top: 3px;
-}
-.band-cell--accent dd { color: var(--accent); }
+/* ---- Additions, in the same visual language ---------------------------- */
+.entry-date{display:block;color:#7e857a;font-size:.7rem;letter-spacing:.1em;font-weight:600;margin-bottom:2px}
+.entry-notes{margin:4px 0 0;font-size:.85rem;color:#8f958a;font-style:italic}
+.entry-figures{display:flex;gap:14px;margin-top:6px}
 
-/* ---- Chart -------------------------------------------------------------- */
-.chart { margin-top: 34px; }
-.chart-bars { display: grid; grid-template-columns: repeat(12, 1fr); gap: 3px; height: 68px; align-items: end; }
-.chart-bar { background: var(--bar); border-radius: 1px; min-height: 2px; }
-.chart-bar--peak { background: var(--accent); }
-.chart-axis {
-  display: flex;
-  justify-content: space-between;
-  font-family: var(--mono);
-  font-size: .56rem;
-  letter-spacing: .1em;
-  text-transform: uppercase;
-  color: var(--muted);
-  margin-top: 8px;
-}
+.chart{margin-top:16px}
+.chart-head,.records-head{display:flex;justify-content:space-between;align-items:baseline;margin-bottom:18px}
+.chart-head h2{margin:0;font-size:1.05rem}
+.chart-head small{color:#a1a69c;font-size:.75rem}
+.chart-bars{display:grid;grid-template-columns:repeat(12,1fr);gap:6px;height:96px;align-items:end}
+.chart-bar{background:#2e352a;border-radius:5px 5px 2px 2px;min-height:3px;transition:background .15s ease}
+.chart-bar--peak{background:#b8ff6a}
+.chart-axis{display:flex;justify-content:space-between;margin-top:10px;color:#7e857a;font-size:.7rem}
 
-/* ---- Records ------------------------------------------------------------ */
-.records {
-  display: grid;
-  grid-template-columns: repeat(3, 1fr);
-  gap: 1px;
-  background: var(--rule);
-  border: 1px solid var(--rule);
-  margin: 38px 0 0;
-}
-.record { background: var(--paper); padding: 16px 18px; }
-.record dt {
-  font-family: var(--mono);
-  font-size: .55rem;
-  letter-spacing: .16em;
-  text-transform: uppercase;
-  color: var(--muted);
-}
-.record dd { margin: 7px 0 0; font-family: var(--serif); font-size: 1.45rem; line-height: 1.2; }
-.record-figure { font-size: 1rem; font-weight: 500; color: var(--accent); }
+.records{display:grid;grid-template-columns:repeat(3,1fr);gap:16px;margin-top:16px}
+.record dt{color:#a1a69c;font-size:.75rem;text-transform:uppercase;letter-spacing:.12em}
+.record dd{margin:10px 0 0;font-size:1.05rem;color:#f5f5ef}
+.record-figure{display:block;color:#b8ff6a;font-size:1.5rem;font-weight:700;margin-top:4px}
 
-/* ---- Columns ------------------------------------------------------------ */
-.columns { display: grid; grid-template-columns: minmax(240px, .72fr) minmax(0, 1.28fr); gap: 48px; margin-top: 52px; align-items: start; }
+.skeleton-row{padding:18px 0;border-top:1px solid #30352c}
+.shim{display:block;height:11px;border-radius:5px;background:#262c22}
+.shim+.shim{margin-top:8px}
 
-/* ---- Entry form: a printed form, underlines rather than boxes ----------- */
-.entry-form h2 { font-family: var(--serif); font-weight: 400; font-size: 1.5rem; margin: 0 0 4px; }
-.entry-form label {
-  display: block;
-  margin-top: 18px;
-  font-family: var(--mono);
-  font-size: .55rem;
-  letter-spacing: .16em;
-  text-transform: uppercase;
-  color: var(--muted);
-}
-.entry-form input,
-.entry-form select {
-  width: 100%;
-  margin-top: 6px;
-  padding: 7px 2px;
-  background: transparent;
-  border: 0;
-  border-bottom: 1px solid var(--rule);
-  border-radius: 0;
-  font-family: var(--mono);
-  font-size: .88rem;
-  color: var(--ink);
-  transition: border-color .15s ease;
-}
-.entry-form input::placeholder { color: var(--muted); opacity: .7; }
-.entry-form input:hover, .entry-form select:hover { border-bottom-color: var(--muted); }
-.entry-form input:focus, .entry-form select:focus { outline: none; border-bottom-color: var(--accent); }
-.entry-form input:focus-visible, .entry-form select:focus-visible { outline: none; }
-.field-pair { display: grid; grid-template-columns: 1fr 1fr; gap: 18px; }
-.entry-form button {
-  margin-top: 26px;
-  width: 100%;
-  padding: 11px 16px;
-  border: 1.5px solid var(--ink);
-  border-radius: 3px;
-  background: var(--ink);
-  color: var(--paper);
-  font-family: var(--mono);
-  font-size: .68rem;
-  letter-spacing: .16em;
-  text-transform: uppercase;
-  cursor: pointer;
-  transition: background .15s ease, color .15s ease;
-}
-.entry-form button:hover:not(:disabled) { background: var(--accent); border-color: var(--accent); }
-.entry-form button:disabled { background: transparent; color: var(--muted); border-color: var(--rule); cursor: not-allowed; }
-
-/* ---- The log ------------------------------------------------------------ */
-.log-head, .entry {
-  display: grid;
-  grid-template-columns: 96px minmax(0, 1fr) 74px 78px 88px 44px;
-  gap: 18px;
-  align-items: baseline;
-}
-.log-head { padding-bottom: 9px; border-bottom: 2px solid var(--ink); }
-.log-head span {
-  font-family: var(--mono);
-  font-size: .55rem;
-  letter-spacing: .16em;
-  text-transform: uppercase;
-  color: var(--muted);
-}
-.log-head .r, .entry-figure, .entry-pace { text-align: right; }
-.entry { padding: 15px 0; border-bottom: 1px solid var(--rule); }
-.entry-date { font-size: .64rem; letter-spacing: .06em; color: var(--muted); white-space: nowrap; }
-.entry-sport {
-  display: block;
-  font-family: var(--mono);
-  font-size: .52rem;
-  letter-spacing: .14em;
-  text-transform: uppercase;
-  color: var(--muted);
-}
-.entry-title { display: block; font-family: var(--serif); font-size: 1.22rem; line-height: 1.2; margin-top: 1px; }
-.entry-notes { display: block; font-size: .75rem; color: var(--muted); margin-top: 3px; }
-.entry-figure { font-size: .82rem; color: var(--ink-soft); }
-/* Pace is the column a runner scans, so it carries the weight. */
-.entry-pace { font-size: 1rem; font-weight: 700; letter-spacing: -.01em; }
-.kudos {
-  justify-self: end;
-  background: transparent;
-  border: 1px solid var(--rule);
-  border-radius: 999px;
-  padding: 3px 9px;
-  font-family: var(--mono);
-  font-size: .7rem;
-  color: var(--muted);
-  cursor: pointer;
-  transition: border-color .15s ease, color .15s ease;
-}
-.kudos:hover:not(:disabled) { border-color: var(--accent); color: var(--accent); }
-.kudos:disabled { opacity: .5; cursor: progress; }
-
-.callout {
-  margin: 16px 0 0;
-  padding: 10px 12px;
-  border-left: 2px solid var(--danger);
-  background: var(--surface);
-  color: var(--danger);
-  font-size: .82rem;
-}
-.empty { margin-top: 22px; color: var(--muted); font-size: .88rem; }
-
-.entry--skeleton { border-bottom: 1px solid var(--rule); }
-.shim { display: block; height: 9px; border-radius: 2px; background: var(--rule); opacity: .55; }
-
-@media (max-width: 860px) {
-  .page { padding: 36px 20px 72px; }
-  .masthead { grid-template-columns: 1fr; align-items: start; }
-  .band { align-self: start; }
-  .columns { grid-template-columns: 1fr; gap: 40px; }
-  .records { grid-template-columns: 1fr; }
-  .log-head, .entry { grid-template-columns: 78px minmax(0, 1fr) 64px 70px 74px 40px; gap: 10px; font-size: .92em; }
+@media(max-width:700px){
+  .stats,.grid,.records{grid-template-columns:1fr}
+  main{padding-top:40px}
+  .chart-bars{height:72px;gap:4px}
 }

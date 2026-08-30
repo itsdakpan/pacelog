@@ -1,69 +1,12 @@
-@import "@fontsource/instrument-serif/400.css";
-@import "@fontsource/instrument-serif/400-italic.css";
-@import "@fontsource/jetbrains-mono/400.css";
-@import "@fontsource/jetbrains-mono/500.css";
-@import "@fontsource/jetbrains-mono/700.css";
-@import "@fontsource/inter/400.css";
-@import "@fontsource/inter/500.css";
+*{box-sizing:border-box}
+body{margin:0;background:#10120f;color:#f5f5ef;font-family:Inter,ui-sans-serif,system-ui,sans-serif}
+button,input,select{font:inherit}
 
-/* PaceLog is a training log, so the page is built like one: a paper ground,
-   ruled rows, and every number set in a mono face with tabular figures so the
-   columns line up down the page. */
-:root {
-  --paper: #f4f5f2;
-  --surface: #ffffff;
-  --ink: #12151a;
-  --ink-soft: #3c4048;
-  --muted: #6e7480;
-  --rule: #d9dcd6;
-  --accent: #1f4fd8;
-  --accent-soft: #e6ebfb;
-  --bar: #c9cec6;
-  --danger: #b3261e;
+/* Figures line up down the feed without changing the typeface. */
+.num{font-variant-numeric:tabular-nums}
 
-  --serif: "Instrument Serif", Georgia, "Times New Roman", serif;
-  --mono: "JetBrains Mono", ui-monospace, SFMono-Regular, Menlo, monospace;
-  --sans: Inter, system-ui, -apple-system, sans-serif;
+:focus-visible{outline:2px solid #b8ff6a;outline-offset:2px;border-radius:4px}
 
-  color-scheme: light dark;
-}
-
-:root:not([data-theme="light"]) {
-  @media (prefers-color-scheme: dark) {
-    --paper: #0f1113;
-    --surface: #16191c;
-    --ink: #eef0ec;
-    --ink-soft: #b7bcb6;
-    --muted: #868c95;
-    --rule: #272c31;
-    --accent: #8fa9ff;
-    --accent-soft: #1b2440;
-    --bar: #333a40;
-    --danger: #ff9a90;
-  }
-}
-
-* { box-sizing: border-box; }
-
-body {
-  margin: 0;
-  background: var(--paper);
-  color: var(--ink);
-  font-family: var(--sans);
-  -webkit-font-smoothing: antialiased;
-}
-
-button, input, select, textarea { font: inherit; color: inherit; }
-
-/* Anything numeric is mono and tabular — that is the whole point of a log. */
-.num { font-family: var(--mono); font-variant-numeric: tabular-nums; }
-
-:focus-visible {
-  outline: 2px solid var(--accent);
-  outline-offset: 2px;
-  border-radius: 2px;
-}
-
-@media (prefers-reduced-motion: reduce) {
-  *, *::before, *::after { animation-duration: .01ms !important; transition-duration: .01ms !important; }
+@media(prefers-reduced-motion:reduce){
+  *,*::before,*::after{animation-duration:.01ms!important;transition-duration:.01ms!important}
 }

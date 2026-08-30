@@ -10,12 +10,14 @@ export default function App() {
   const { activities, summary, feedError, loading, saving, pendingKudos, save, kudos } = useActivities();
 
   return (
-    <main className="page">
+    <main>
       <Masthead summary={summary} />
+
       <WeeklyChart series={summary.weekly_series} />
+
       <PersonalRecords records={summary.records} />
 
-      <div className="columns">
+      <section className="grid">
         <EntryForm saving={saving} onSave={save} />
         <ActivityLog
           activities={activities}
@@ -24,7 +26,7 @@ export default function App() {
           pendingKudos={pendingKudos}
           onKudos={kudos}
         />
-      </div>
+      </section>
     </main>
   );
 }

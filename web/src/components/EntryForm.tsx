@@ -56,63 +56,51 @@ export function EntryForm({ saving, onSave }: Props) {
     // noValidate: `max` on the date input would otherwise let the browser block
     // submission with its own tooltip, so our messages never showed. Keep `max`
     // for the picker's affordance; own the messaging ourselves.
-    <form className="entry-form" onSubmit={submit} noValidate>
-      <h2>New entry</h2>
+    <form onSubmit={submit} noValidate>
+      <h2>Log a run</h2>
 
       <label>
-        Session name
-        <input value={title} onChange={(e) => setTitle(e.target.value)} placeholder="Morning shakeout" />
+        Run name
+        <input value={title} onChange={(e) => setTitle(e.target.value)} placeholder="Morning run" />
       </label>
-
-      <div className="field-pair">
-        <label>
-          Type
-          <select value={activityType} onChange={(e) => setActivityType(e.target.value)}>
-            <option value="run">Run</option>
-            <option value="ride">Ride</option>
-            <option value="walk">Walk</option>
-          </select>
-        </label>
-        <label>
-          Date
-          <input type="date" value={date} max={todayValue()} onChange={(e) => setDate(e.target.value)} />
-        </label>
-      </div>
-
-      <div className="field-pair">
-        <label>
-          Distance (km)
-          <input
-            type="number"
-            step="0.1"
-            value={distance}
-            onChange={(e) => setDistance(e.target.value)}
-            placeholder="7.9"
-          />
-        </label>
-        <label>
-          Duration (min)
-          <input
-            type="number"
-            value={minutes}
-            onChange={(e) => setMinutes(e.target.value)}
-            placeholder="49"
-          />
-        </label>
-      </div>
-
+      <label>
+        Type
+        <select value={activityType} onChange={(e) => setActivityType(e.target.value)}>
+          <option value="run">Run</option>
+          <option value="ride">Ride</option>
+          <option value="walk">Walk</option>
+        </select>
+      </label>
+      <label>
+        Date
+        <input type="date" value={date} max={todayValue()} onChange={(e) => setDate(e.target.value)} />
+      </label>
+      <label>
+        Distance (km)
+        <input
+          type="number"
+          step="0.1"
+          value={distance}
+          onChange={(e) => setDistance(e.target.value)}
+          placeholder="5.0"
+        />
+      </label>
+      <label>
+        Duration (minutes)
+        <input type="number" value={minutes} onChange={(e) => setMinutes(e.target.value)} placeholder="30" />
+      </label>
       <label>
         Notes
         <input value={notes} onChange={(e) => setNotes(e.target.value)} placeholder="How did it feel?" />
       </label>
 
       {error && (
-        <p className="callout" role="alert">
+        <p className="error" role="alert">
           {error}
         </p>
       )}
 
-      <button disabled={saving}>{saving ? "Saving…" : "Save entry"}</button>
+      <button disabled={saving}>{saving ? "Saving…" : "Save activity"}</button>
     </form>
   );
 }

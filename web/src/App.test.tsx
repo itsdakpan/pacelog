@@ -51,12 +51,12 @@ afterEach(() => {
 });
 
 async function fillRequiredFields(user: ReturnType<typeof userEvent.setup>) {
-  await user.type(screen.getByLabelText(/session name/i), "Morning run");
+  await user.type(screen.getByLabelText(/run name/i), "Morning run");
   await user.type(screen.getByLabelText(/distance/i), "5");
   await user.type(screen.getByLabelText(/duration/i), "30");
 }
 
-const saveButton = () => screen.getByRole("button", { name: /save entry/i });
+const saveButton = () => screen.getByRole("button", { name: /save activity/i });
 
 describe("loading the feed", () => {
   it("renders activities and the summary figures", async () => {
@@ -74,7 +74,7 @@ describe("loading the feed", () => {
 
     expect(await screen.findByText("Morning run")).toBeInTheDocument();
     expect(screen.getByText("5.0 km")).toBeInTheDocument();
-    expect(screen.getByText("3")).toBeInTheDocument(); // streak
+    expect(screen.getByText("3 wks")).toBeInTheDocument();
   });
 
   it("explains an unreachable API instead of silently showing an empty feed", async () => {
@@ -83,7 +83,7 @@ describe("loading the feed", () => {
     render(<App />);
 
     expect(await screen.findByText(/can't reach the api/i)).toBeInTheDocument();
-    expect(screen.queryByText(/nothing logged yet/i)).not.toBeInTheDocument();
+    expect(screen.queryByText(/your next run starts here/i)).not.toBeInTheDocument();
   });
 
   it("names the port collision when another server answers", async () => {
@@ -99,7 +99,7 @@ describe("loading the feed", () => {
 
     render(<App />);
 
-    expect(await screen.findByText(/nothing logged yet/i)).toBeInTheDocument();
+    expect(await screen.findByText(/your next run starts here/i)).toBeInTheDocument();
   });
 });
 
@@ -175,14 +175,14 @@ describe("the dashboard", () => {
     fetchMock.mockResolvedValue(json(feed([])));
 
     render(<App />);
-    await screen.findByText(/nothing logged yet/i);
+    await screen.findByText(/your next run starts here/i);
 
     expect(screen.queryByText(/longest run/i)).not.toBeInTheDocument();
   });
 });
 
-describe("saving an entry", () => {
-  it("posts the entry and refreshes the feed", async () => {
+describe("saving a run", () => {
+  it("posts the run and refreshes the feed", async () => {
     const user = userEvent.setup();
     fetchMock
       .mockResolvedValueOnce(json(feed([])))
@@ -190,7 +190,7 @@ describe("saving an entry", () => {
       .mockResolvedValueOnce(json(feed([sampleRun])));
 
     render(<App />);
-    await screen.findByText(/nothing logged yet/i);
+    await screen.findByText(/your next run starts here/i);
 
     await fillRequiredFields(user);
     await user.click(saveButton());
@@ -207,12 +207,12 @@ describe("saving an entry", () => {
       .mockResolvedValueOnce(json(feed([sampleRun])));
 
     render(<App />);
-    await screen.findByText(/nothing logged yet/i);
+    await screen.findByText(/your next run starts here/i);
 
     await fillRequiredFields(user);
     await user.click(saveButton());
 
-    await waitFor(() => expect(screen.getByLabelText(/session name/i)).toHaveValue(""));
+    await waitFor(() => expect(screen.getByLabelText(/run name/i)).toHaveValue(""));
     expect(screen.getByLabelText(/distance/i)).toHaveValue(null);
   });
 
@@ -229,7 +229,7 @@ describe("saving an entry", () => {
       .mockResolvedValue(json(feed([sampleRun])));
 
     render(<App />);
-    await screen.findByText(/nothing logged yet/i);
+    await screen.findByText(/your next run starts here/i);
 
     await fillRequiredFields(user);
     const button = saveButton();
@@ -249,7 +249,7 @@ describe("saving an entry", () => {
     fetchMock.mockResolvedValueOnce(json(feed([]))).mockRejectedValueOnce(new TypeError("Failed to fetch"));
 
     render(<App />);
-    await screen.findByText(/nothing logged yet/i);
+    await screen.findByText(/your next run starts here/i);
 
     await fillRequiredFields(user);
     await user.click(saveButton());
@@ -265,7 +265,7 @@ describe("saving an entry", () => {
       .mockResolvedValueOnce(json({ errors: ["Title can't be blank"] }, 422));
 
     render(<App />);
-    await screen.findByText(/nothing logged yet/i);
+    await screen.findByText(/your next run starts here/i);
 
     await fillRequiredFields(user);
     await user.click(saveButton());
@@ -278,9 +278,9 @@ describe("saving an entry", () => {
     fetchMock.mockResolvedValueOnce(json(feed([])));
 
     render(<App />);
-    await screen.findByText(/nothing logged yet/i);
+    await screen.findByText(/your next run starts here/i);
 
-    await user.type(screen.getByLabelText(/session name/i), "Morning run");
+    await user.type(screen.getByLabelText(/run name/i), "Morning run");
     await user.type(screen.getByLabelText(/duration/i), "30");
     await user.click(saveButton());
 
@@ -298,9 +298,9 @@ describe("logging a past ride", () => {
       .mockResolvedValueOnce(json(feed([sampleRun])));
 
     render(<App />);
-    await screen.findByText(/nothing logged yet/i);
+    await screen.findByText(/your next run starts here/i);
 
-    await user.type(screen.getByLabelText(/session name/i), "Canal loop");
+    await user.type(screen.getByLabelText(/run name/i), "Canal loop");
     await user.selectOptions(screen.getByLabelText(/type/i), "ride");
     await user.clear(screen.getByLabelText(/date/i));
     await user.type(screen.getByLabelText(/date/i), "2026-08-24");
@@ -329,9 +329,9 @@ describe("logging a past ride", () => {
     fetchMock.mockResolvedValueOnce(json(feed([])));
 
     render(<App />);
-    await screen.findByText(/nothing logged yet/i);
+    await screen.findByText(/your next run starts here/i);
 
-    await user.type(screen.getByLabelText(/session name/i), "Tomorrow run");
+    await user.type(screen.getByLabelText(/run name/i), "Tomorrow run");
     await user.clear(screen.getByLabelText(/date/i));
     await user.type(screen.getByLabelText(/date/i), "2099-01-01");
     await user.type(screen.getByLabelText(/distance/i), "5");
