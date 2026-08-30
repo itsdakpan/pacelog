@@ -1,5 +1,5 @@
 class Activity < ApplicationRecord
-  ACTIVITY_TYPES = %w[run ride walk].freeze
+  ACTIVITY_TYPES = %w[run walk].freeze
 
   validates :title, :activity_type, :started_at, :distance_km, :duration_minutes, presence: true
   validates :activity_type, inclusion: { in: ACTIVITY_TYPES }

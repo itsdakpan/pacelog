@@ -74,7 +74,7 @@ describe("loading the feed", () => {
     render(<App />);
 
     expect(await screen.findByText("Morning run")).toBeInTheDocument();
-    expect(screen.getByText("5.0 km")).toBeInTheDocument();
+    expect(screen.getAllByText("5.0 km")).toHaveLength(3);
     expect(screen.getByText(/weeks in a row/i)).toBeInTheDocument();
     expect(screen.getByText("3")).toBeInTheDocument();
   });
@@ -111,7 +111,7 @@ describe("the log line", () => {
 
     render(<App />);
 
-    expect(await screen.findByText("TUE 25 AUG")).toBeInTheDocument();
+    expect(await screen.findByText("TUE 25 AUG 2026")).toBeInTheDocument();
     expect(screen.getByText("Easy effort")).toBeInTheDocument();
     expect(screen.getByText("5.0 km")).toBeInTheDocument();
     expect(screen.getByText("30:00")).toBeInTheDocument();
@@ -337,7 +337,7 @@ describe("saving a run", () => {
   });
 });
 
-describe("logging a past ride", () => {
+describe("logging a past walk", () => {
   it("submits the chosen type, date and notes", async () => {
     const user = userEvent.setup();
     fetchMock
@@ -349,7 +349,7 @@ describe("logging a past ride", () => {
     await screen.findByText(/your next run starts here/i);
 
     await user.type(screen.getByLabelText(/run name/i), "Canal loop");
-    await user.selectOptions(screen.getByLabelText(/type/i), "ride");
+    await user.selectOptions(screen.getByLabelText(/type/i), "walk");
     await user.clear(screen.getByLabelText(/date/i));
     await user.type(screen.getByLabelText(/date/i), "2026-08-24");
     await user.type(screen.getByLabelText(/distance/i), "24");
@@ -359,7 +359,7 @@ describe("logging a past ride", () => {
 
     await waitFor(() => expect(fetchMock.mock.calls.length).toBeGreaterThan(1));
     const sent = JSON.parse(fetchMock.mock.calls[1][1].body).activity;
-    expect(sent.activity_type).toBe("ride");
+    expect(sent.activity_type).toBe("walk");
     expect(sent.notes).toBe("Windy");
     expect(new Date(sent.started_at).getFullYear()).toBe(2026);
   });
@@ -443,4 +443,3 @@ describe("deleting an entry", () => {
     expect(screen.getByText("Morning run")).toBeInTheDocument();
   });
 });
-

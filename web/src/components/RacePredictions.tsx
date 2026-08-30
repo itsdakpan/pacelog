@@ -1,4 +1,6 @@
 import type { Summary } from "../api";
+import { KM_PER_MILE } from "../lib/format";
+import type { DistanceUnit } from "../lib/format";
 
 const clock = (seconds: number) => {
   const hours = Math.floor(seconds / 3600);
@@ -8,13 +10,13 @@ const clock = (seconds: number) => {
   return hours > 0 ? `${hours}:${pad(minutes)}:${pad(secs)}` : `${minutes}:${pad(secs)}`;
 };
 
-const pace = (seconds: number, km: number) => {
-  const perKm = Math.round(seconds / km);
-  return `${Math.floor(perKm / 60)}:${String(perKm % 60).padStart(2, "0")}/km`;
+const pace = (seconds: number, km: number, unit: DistanceUnit) => {
+  const perUnit = Math.round(seconds / km * (unit === "mi" ? KM_PER_MILE : 1));
+  return `${Math.floor(perUnit / 60)}:${String(perUnit % 60).padStart(2, "0")}/${unit}`;
 };
 
 /** Projected race times, so the log says what the training is worth. */
-export function RacePredictions({ data }: { data: Summary["race_predictions"] }) {
+export function RacePredictions({ data, unit }: { data: Summary["race_predictions"]; unit: DistanceUnit }) {
   if (!data) return null;
 
   return (
@@ -29,7 +31,7 @@ export function RacePredictions({ data }: { data: Summary["race_predictions"] })
             <tr key={prediction.label}>
               <th scope="row">{prediction.label}</th>
               <td className="num table-figure">{clock(prediction.seconds)}</td>
-              <td className="num table-muted">{pace(prediction.seconds, prediction.distance_km)}</td>
+              <td className="num table-muted">{pace(prediction.seconds, prediction.distance_km, unit)}</td>
             </tr>
           ))}
         </tbody>

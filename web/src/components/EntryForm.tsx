@@ -2,12 +2,14 @@ import { useState } from "react";
 import type { FormEvent } from "react";
 import type { NewActivity } from "../api";
 import { validate } from "../lib/validate";
+import { KM_PER_MILE } from "../lib/format";
+import type { DistanceUnit } from "../lib/format";
 
 const todayValue = () => new Date().toISOString().slice(0, 10);
 
-type Props = { saving: boolean; onSave: (form: NewActivity) => Promise<string | null> };
+type Props = { saving: boolean; onSave: (form: NewActivity) => Promise<string | null>; unit: DistanceUnit };
 
-export function EntryForm({ saving, onSave }: Props) {
+export function EntryForm({ saving, onSave, unit }: Props) {
   const [title, setTitle] = useState("");
   const [activityType, setActivityType] = useState("run");
   const [date, setDate] = useState(todayValue);
@@ -23,7 +25,7 @@ export function EntryForm({ saving, onSave }: Props) {
     const form: NewActivity = {
       title,
       activity_type: activityType,
-      distance_km: distance,
+      distance_km: unit === "mi" && distance ? String(Number(distance) * KM_PER_MILE) : distance,
       duration_minutes: minutes,
       // A date input yields YYYY-MM-DD; anchor it to midday local time so the
       // entry cannot slip into an adjacent day when converted to UTC.
@@ -67,7 +69,6 @@ export function EntryForm({ saving, onSave }: Props) {
         Type
         <select value={activityType} onChange={(e) => setActivityType(e.target.value)}>
           <option value="run">Run</option>
-          <option value="ride">Ride</option>
           <option value="walk">Walk</option>
         </select>
       </label>
@@ -76,7 +77,7 @@ export function EntryForm({ saving, onSave }: Props) {
         <input type="date" value={date} max={todayValue()} onChange={(e) => setDate(e.target.value)} />
       </label>
       <label>
-        Distance (km)
+        Distance ({unit})
         <input
           type="number"
           step="0.1"
@@ -100,7 +101,9 @@ export function EntryForm({ saving, onSave }: Props) {
         </p>
       )}
 
-      <button disabled={saving}>{saving ? "Saving…" : "Save activity"}</button>
+      <button className="save-button" disabled={saving}>
+        {saving ? "Saving…" : "Save activity"}
+      </button>
     </form>
   );
 }

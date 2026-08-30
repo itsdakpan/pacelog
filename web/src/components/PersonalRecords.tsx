@@ -1,11 +1,8 @@
 import type { Summary } from "../api";
+import { formatDistance, formatPace } from "../lib/format";
+import type { DistanceUnit } from "../lib/format";
 
-const paceLabel = (paceMinutes: number) => {
-  const total = Math.round(paceMinutes * 60);
-  return `${Math.floor(total / 60)}:${String(total % 60).padStart(2, "0")}/km`;
-};
-
-export function PersonalRecords({ records }: { records: Summary["records"] }) {
+export function PersonalRecords({ records, unit }: { records: Summary["records"]; unit: DistanceUnit }) {
   const { longest_run: longest, fastest_pace: fastest } = records;
   if (!longest && !fastest) return null;
 
@@ -14,14 +11,14 @@ export function PersonalRecords({ records }: { records: Summary["records"] }) {
       {longest && (
         <Record
           label="Longest run"
-          figure={`${longest.distance_km} km`}
-          note="furthest single run — rides and walks excluded"
+          figure={formatDistance(longest.distance_km, unit)}
+          note="furthest single run — walks excluded"
         />
       )}
       {fastest && (
         <Record
           label="Fastest pace"
-          figure={paceLabel(fastest.pace_per_km)}
+          figure={formatPace(fastest.pace_per_km, unit)}
           note="best average pace over a whole run"
         />
       )}

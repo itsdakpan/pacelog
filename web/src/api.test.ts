@@ -158,7 +158,7 @@ describe("createActivity with full detail", () => {
 
     await createActivity({
       title: "  Canal loop  ",
-      activity_type: "ride",
+      activity_type: "walk",
       distance_km: "24.0",
       duration_minutes: "62",
       started_at: "2026-08-24T07:15:00.000Z",
@@ -167,7 +167,7 @@ describe("createActivity with full detail", () => {
 
     const sent = JSON.parse(fetchMock.mock.calls[0][1].body).activity;
     expect(sent.title).toBe("Canal loop");
-    expect(sent.activity_type).toBe("ride");
+    expect(sent.activity_type).toBe("walk");
     expect(sent.started_at).toBe("2026-08-24T07:15:00.000Z");
     expect(sent.notes).toBe("Windy");
   });
@@ -188,4 +188,3 @@ describe("createActivity with full detail", () => {
     expect(JSON.parse(fetchMock.mock.calls[0][1].body).activity.notes).toBeNull();
   });
 });
-

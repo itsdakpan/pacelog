@@ -1,6 +1,7 @@
 import { useState } from "react";
 import type { Activity } from "../api";
 import { formatDistance, formatDuration, formatEntryDate, formatPace } from "../lib/format";
+import type { DistanceUnit } from "../lib/format";
 
 
 const TrashIcon = () => (
@@ -10,12 +11,25 @@ const TrashIcon = () => (
   </svg>
 );
 
+const ActivityTypeIcon = ({ type }: { type: string }) => {
+  if (type === "run") {
+    return <i className="fa-solid fa-person-running activity-type-icon" aria-hidden="true" />;
+  }
+
+  if (type === "walk") {
+    return <i className="fa-solid fa-person-walking activity-type-icon" aria-hidden="true" />;
+  }
+
+  return null;
+};
+
 type Props = {
   activities: Activity[];
   loading: boolean;
   error: string;
   deleting: number[];
   onDelete: (id: number) => void;
+  unit: DistanceUnit;
 };
 
 export function ActivityLog({
@@ -24,6 +38,7 @@ export function ActivityLog({
   error,
   deleting,
   onDelete,
+  unit,
 }: Props) {
   // Deleting is irreversible, so it takes two deliberate clicks rather than a
   // browser confirm dialog.
@@ -50,12 +65,15 @@ export function ActivityLog({
         <article className="activity" key={activity.id}>
           <div>
             <span className="entry-date num">{formatEntryDate(activity.started_at)}</span>
-            <small>{activity.activity_type}</small>
+            <small>
+              <ActivityTypeIcon type={activity.activity_type} />
+              {activity.activity_type}
+            </small>
             <h3>{activity.title}</h3>
             <p className="entry-figures num">
-              <span>{formatDistance(activity.distance_km)}</span>
+              <span>{formatDistance(activity.distance_km, unit)}</span>
               <span>{formatDuration(activity.duration_minutes)}</span>
-              <span>{formatPace(activity.pace_per_km)}</span>
+              <span>{formatPace(activity.pace_per_km, unit)}</span>
             </p>
             {activity.notes && <p className="entry-notes">{activity.notes}</p>}
           </div>

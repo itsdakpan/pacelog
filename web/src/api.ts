@@ -80,7 +80,12 @@ export class ApiError extends Error {
   }
 }
 
-export const API_BASE = "/api/v1";
+const configuredApiBase = import.meta.env.VITE_API_BASE_URL?.trim();
+
+// Keep same-origin requests in development, while allowing the static build
+// to talk to a separately hosted API. A trailing slash would otherwise create
+// double slashes when request paths are appended.
+export const API_BASE = (configuredApiBase || "/api/v1").replace(/\/$/, "");
 
 const OFFLINE_MESSAGE =
   "Can't reach the API. Start it with bin/dev (it listens on port 3001), then try again.";
@@ -164,4 +169,3 @@ export function createActivity(input: NewActivity): Promise<{ activity: Activity
 export function deleteActivity(id: number): Promise<void> {
   return request<void>(`/activities/${id}`, { method: "DELETE" });
 }
-

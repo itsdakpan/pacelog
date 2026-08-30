@@ -43,11 +43,8 @@ weekly_volume.each_with_index do |volume, week_index|
     { day: 6, km: long_km,  pace: 6.30, title: long_titles.sample(random: rng),  type: "run" }
   ]
 
-  # Cross-training keeps the type badges from being uniformly "run".
-  case week_index % 4
-  when 1 then sessions << { day: 2, km: jitter.call(24, 0.15), pace: 2.6, title: "Recovery spin", type: "ride" }
-  when 2 then sessions << { day: 0, km: jitter.call(4, 0.2), pace: 12.5, title: "Evening walk", type: "walk" }
-  end
+  # Occasional walks keep the type badges from being uniformly "run".
+  sessions << { day: 0, km: jitter.call(4, 0.2), pace: 12.5, title: "Evening walk", type: "walk" } if week_index % 4 == 2
 
   sessions.each do |session|
     started_at = week_start + session[:day].days + rng.rand(6..8).hours + rng.rand(0..59).minutes

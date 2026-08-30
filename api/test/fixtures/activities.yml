@@ -8,9 +8,9 @@ morning_run:
   duration_minutes: 30
   notes: Easy pace
 
-long_ride:
-  title: Long ride
-  activity_type: ride
+long_walk:
+  title: Long walk
+  activity_type: walk
   started_at: <%= (Time.current.beginning_of_week - 3.days).to_fs(:db) %>
   distance_km: 20.0
   duration_minutes: 60

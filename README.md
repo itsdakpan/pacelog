@@ -1,6 +1,6 @@
 # PaceLog
 
-Run logging with distance/pace stats, an activity feed, and kudos.
+Run logging with distance/pace stats, an activity feed, and race predictions.
 Rails API in `api/`, React + Vite frontend in `web/`.
 
 ## Running locally
@@ -36,7 +36,32 @@ The default lives in `api/config/puma.rb` and is honoured by `PORT`.
 
 The browser calls same-origin paths (`/api/v1/...`), and Vite proxies `/api` to
 the API port (`web/vite.config.ts`). Nothing hardcodes a host or port into the
-client bundle, and there is no CORS in dev.
+client bundle in development.
+
+## Deployment configuration
+
+The two halves can be hosted separately. Build the frontend with the API's
+public base URL (including `/api/v1`):
+
+```sh
+cd web
+VITE_API_BASE_URL=https://api.example.com/api/v1 npm run build
+```
+
+Set `FRONTEND_ORIGINS` on the Rails service to the exact public frontend
+origin. Multiple origins are comma-separated:
+
+```sh
+FRONTEND_ORIGINS=https://pacelog.example.com
+```
+
+The demo intentionally accepts visitor writes. Schedule the following command
+nightly on the API host to replace visitor data with the deterministic seed:
+
+```sh
+cd api
+bin/rails pacelog:reset_demo
+```
 
 ## First-time setup
 
@@ -56,7 +81,7 @@ client bundle, and there is no CORS in dev.
 
 - `GET  /api/v1/activities` — activities and dashboard summary
 - `POST /api/v1/activities` — create an activity
-- `POST /api/v1/activities/:id/kudos` — add kudos
+- `DELETE /api/v1/activities/:id` — delete an activity
 
 ## Known environment issue
 

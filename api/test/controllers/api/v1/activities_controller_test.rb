@@ -9,7 +9,7 @@ class Api::V1::ActivitiesControllerTest < ActionDispatch::IntegrationTest
 
     body = JSON.parse(response.body)
     titles = body["activities"].map { |activity| activity["title"] }
-    assert_equal [ "Morning run", "Long ride" ], titles
+    assert_equal [ "Morning run", "Long walk" ], titles
 
     assert_equal 25.0, body["summary"]["total_distance_km"]
     assert_equal 5.0, body["summary"]["weekly_distance_km"]

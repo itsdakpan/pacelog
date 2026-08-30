@@ -44,7 +44,7 @@ class ActivityTest < ActiveSupport::TestCase
     assert_equal 4, series.size
     assert_equal series.map { |w| w[:week_start] }.sort, series.map { |w| w[:week_start] }
     assert_equal Time.current.beginning_of_week.to_date.to_s, series.last[:week_start]
-    # morning_run sits in the current week; long_ride is three days before it.
+    # morning_run sits in the current week; long_walk is three days before it.
     assert_equal 5.0, series.last[:distance_km]
     assert(series.all? { |w| w[:distance_km].is_a?(Float) }, "weeks with no activity must be 0.0, not nil")
   end
@@ -65,8 +65,8 @@ class ActivityTest < ActiveSupport::TestCase
     assert_equal 1, Activity.current_streak_weeks
   end
 
-  test "records reports the longest run, not the longest ride" do
-    # long_ride is 20km, morning_run is 5km. A ride must never win "longest run".
+  test "records reports the longest run, not the longest walk" do
+    # long_walk is 20km, morning_run is 5km. A walk must never win "longest run".
     assert_equal "Morning run", Activity.records[:longest_run][:title]
   end
 
@@ -124,9 +124,9 @@ class ActivityTest < ActiveSupport::TestCase
     assert_operator marathon[:seconds], :>, 3000 * 2
   end
 
-  test "race_predictions ignores rides and very short efforts" do
+  test "race_predictions ignores walks and very short efforts" do
     Activity.delete_all
-    Activity.create!(title: "Fast spin", activity_type: "ride", started_at: 1.week.ago, distance_km: 20, duration_minutes: 40)
+    Activity.create!(title: "Fast walk", activity_type: "walk", started_at: 1.week.ago, distance_km: 20, duration_minutes: 40)
     Activity.create!(title: "Sprint", activity_type: "run", started_at: 1.week.ago, distance_km: 1, duration_minutes: 3)
 
     assert_nil Activity.race_predictions

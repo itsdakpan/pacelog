@@ -43,10 +43,20 @@ describe("formatDistance", () => {
     expect(formatDistance("5.0")).toBe("5.0 km");
     expect(formatDistance(12.34)).toBe("12.3 km");
   });
+
+  it("converts kilometres to miles", () => {
+    expect(formatDistance(5, "mi")).toBe("3.1 mi");
+  });
+});
+
+describe("formatPace in miles", () => {
+  it("converts per-kilometre pace to per-mile pace", () => {
+    expect(formatPace(6, "mi")).toBe("9:39/mi");
+  });
 });
 
 describe("formatEntryDate", () => {
   it("renders an uppercase logbook date", () => {
-    expect(formatEntryDate("2026-08-25T06:30:00.000Z")).toBe("TUE 25 AUG");
+    expect(formatEntryDate("2026-08-25T06:30:00.000Z")).toBe("TUE 25 AUG 2026");
   });
 });

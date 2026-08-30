@@ -1,11 +1,12 @@
 main{max-width:1000px;margin:auto;padding:64px 24px}
 header{max-width:650px}
 .wordmark{display:flex;align-items:center;gap:11px}
-.logo{color:#b8ff6a;flex:none}
+.logo{flex:none;object-fit:contain}
 header>p,.activity small{color:#b8ff6a;text-transform:uppercase;letter-spacing:.15em;font-size:.75rem;font-weight:700}
 h1{font-size:clamp(3rem,8vw,6rem);line-height:.95;letter-spacing:-.07em;margin:.6rem 0 1rem}
 header>span,.activity p,.empty{color:#b8b9b1}
 .stats,.grid{display:grid;gap:16px;margin-top:48px}
+.dashboard-tools+.stats{margin-top:16px}
 .stats{grid-template-columns:repeat(4,1fr)}
 .stats article,form,.feed,.chart,.record,.panel{background:#1b1e19;border:1px solid #30352c;border-radius:18px;padding:24px}
 .stats small{color:#a1a69c}
@@ -19,6 +20,19 @@ input:hover,select:hover{border-color:#5a6150}
 button{border:0;border-radius:9px;padding:12px 16px;background:#b8ff6a;color:#14200a;font-weight:800;cursor:pointer;transition:background .15s ease}
 button:hover:not(:disabled){background:#c9ff8a}
 button:disabled{background:#2e352a;color:#8a9182;cursor:not-allowed}
+.save-button{width:100%;margin-top:4px;padding:14px 18px;border:1px solid #d7ffa8;background:linear-gradient(180deg,#c5ff82 0%,#b8ff6a 100%);box-shadow:0 5px 16px rgba(184,255,106,.12);letter-spacing:.02em;transition:transform .15s ease,box-shadow .15s ease,background .15s ease}
+.save-button:hover:not(:disabled){transform:translateY(-1px);box-shadow:0 8px 22px rgba(184,255,106,.2);background:linear-gradient(180deg,#d0ff99 0%,#c2ff7c 100%)}
+.save-button:active:not(:disabled){transform:translateY(1px);box-shadow:0 3px 10px rgba(184,255,106,.12)}
+.save-button:focus-visible{outline:3px solid rgba(184,255,106,.3);outline-offset:3px}
+.save-button:disabled{border-color:#3a4234;box-shadow:none}
+
+.dashboard-tools{display:flex;align-items:center;justify-content:space-between;gap:16px;margin-top:38px;padding-bottom:10px;border-bottom:1px solid #30352c;color:#8f958a;font-size:.75rem}
+.dashboard-tools time{letter-spacing:.04em}
+.dashboard-tools time span{margin-right:8px;color:#b8ff6a;text-transform:uppercase;letter-spacing:.12em;font-size:.65rem;font-weight:700}
+.unit-toggle{display:flex;padding:3px;border:1px solid #30352c;border-radius:9px;background:#1b1e19}
+.unit-toggle button{min-width:40px;padding:6px 9px;border-radius:6px;background:transparent;color:#8f958a;text-transform:uppercase;font-size:.7rem}
+.unit-toggle button:hover:not(:disabled){background:#2e352a;color:#cdd1c7}
+.unit-toggle button.active{background:#b8ff6a;color:#14200a}
 .feed-title,.activity{display:flex;justify-content:space-between;gap:16px}
 .feed-title{align-items:center}
 .feed-title small{color:#a1a69c}
@@ -29,6 +43,7 @@ button:disabled{background:#2e352a;color:#8a9182;cursor:not-allowed}
 
 /* ---- Additions, in the same visual language ---------------------------- */
 .entry-date{display:block;color:#7e857a;font-size:.7rem;letter-spacing:.1em;font-weight:600;margin-bottom:2px}
+.activity-type-icon{margin-right:6px;font-size:.82rem}
 .entry-notes{margin:4px 0 0;font-size:.85rem;color:#8f958a;font-style:italic}
 .entry-figures{display:flex;gap:14px;margin-top:6px}
 
