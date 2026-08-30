@@ -2,7 +2,9 @@ import "./App.css";
 import { ActivityLog } from "./components/ActivityLog";
 import { EntryForm } from "./components/EntryForm";
 import { Masthead } from "./components/Masthead";
+import { EffortBalance } from "./components/EffortBalance";
 import { PersonalRecords } from "./components/PersonalRecords";
+import { RacePredictions } from "./components/RacePredictions";
 import { WeeklyChart } from "./components/WeeklyChart";
 import { useActivities } from "./useActivities";
 
@@ -13,9 +15,14 @@ export default function App() {
     <main>
       <Masthead summary={summary} />
 
-      <WeeklyChart series={summary.weekly_series} />
+      <WeeklyChart series={summary.weekly_series} trend={summary.pace_trend} />
 
       <PersonalRecords records={summary.records} />
+
+      <div className="panels">
+        <RacePredictions data={summary.race_predictions} />
+        <EffortBalance split={summary.effort_split} />
+      </div>
 
       <section className="grid">
         <EntryForm saving={saving} onSave={save} />

@@ -11,19 +11,36 @@ export function PersonalRecords({ records }: { records: Summary["records"] }) {
 
   return (
     <dl className="records">
-      {longest && <Record label="Longest run" name={longest.title} figure={`${longest.distance_km} km`} />}
-      {fastest && <Record label="Fastest pace" name={fastest.title} figure={paceLabel(fastest.pace_per_km)} />}
+      {longest && (
+        <Record
+          label="Longest run"
+          name={longest.title}
+          figure={`${longest.distance_km} km`}
+          note="furthest single run — rides and walks excluded"
+        />
+      )}
+      {fastest && (
+        <Record
+          label="Fastest pace"
+          name={fastest.title}
+          figure={paceLabel(fastest.pace_per_km)}
+          note="best average pace over a whole run"
+        />
+      )}
     </dl>
   );
 }
 
-function Record({ label, name, figure }: { label: string; name: string; figure: string }) {
+type RecordProps = { label: string; name: string; figure: string; note: string };
+
+function Record({ label, name, figure, note }: RecordProps) {
   return (
     <div className="record">
       <dt>{label}</dt>
       <dd>
         {name}
         <span className="num record-figure">{figure}</span>
+        <span className="stat-note">{note}</span>
       </dd>
     </div>
   );

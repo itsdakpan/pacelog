@@ -58,6 +58,7 @@ describe("failure classification", () => {
       duration_minutes: "30",
       started_at: "2026-08-30T07:00:00.000Z",
       notes: "",
+      effort: "",
     }).catch((caught: unknown) => caught);
 
     expect(error).toBeInstanceOf(ApiError);
@@ -76,6 +77,7 @@ describe("failure classification", () => {
       duration_minutes: "30",
       started_at: "2026-08-30T07:00:00.000Z",
       notes: "",
+      effort: "",
     }).catch((caught: unknown) => caught);
 
     expect((error as ApiError).kind).toBe("wrong-server");
@@ -107,6 +109,7 @@ describe("failure classification", () => {
       duration_minutes: "30",
       started_at: "2026-08-30T07:00:00.000Z",
       notes: "",
+      effort: "",
     }).catch((caught: unknown) => caught);
 
     expect((error as ApiError).kind).toBe("validation");
@@ -136,6 +139,7 @@ describe("createActivity", () => {
       duration_minutes: "30",
       started_at: "2026-08-30T07:00:00.000Z",
       notes: "",
+      effort: "",
     });
 
     const [url, init] = fetchMock.mock.calls[0];
@@ -163,6 +167,7 @@ describe("createActivity with full detail", () => {
       duration_minutes: "62",
       started_at: "2026-08-24T07:15:00.000Z",
       notes: "  Windy  ",
+      effort: "6",
     });
 
     const sent = JSON.parse(fetchMock.mock.calls[0][1].body).activity;
@@ -183,6 +188,7 @@ describe("createActivity with full detail", () => {
       duration_minutes: "30",
       started_at: "2026-08-24T07:15:00.000Z",
       notes: "   ",
+      effort: "",
     });
 
     expect(JSON.parse(fetchMock.mock.calls[0][1].body).activity.notes).toBeNull();

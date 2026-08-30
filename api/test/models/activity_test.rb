@@ -78,6 +78,94 @@ class ActivityTest < ActiveSupport::TestCase
     assert_equal 4.0, Activity.records[:fastest_pace][:pace_per_km]
   end
 
+  test "effort must be a whole number from 1 to 10 when given" do
+    assert_predicate build(effort: nil), :valid?, "effort is optional"
+    assert_predicate build(effort: 1), :valid?
+    assert_predicate build(effort: 10), :valid?
+    assert_predicate build(effort: 0), :invalid?
+    assert_predicate build(effort: 11), :invalid?
+    assert_predicate build(effort: 5.5), :invalid?
+  end
+
+  test "effort_split reports the share of easy running" do
+    Activity.delete_all
+    3.times { Activity.create!(title: "Easy", activity_type: "run", started_at: Time.current, distance_km: 5, duration_minutes: 30, effort: 3) }
+    Activity.create!(title: "Hard", activity_type: "run", started_at: Time.current, distance_km: 5, duration_minutes: 20, effort: 8)
+
+    split = Activity.effort_split
+
+    assert_equal 3, split[:easy]
+    assert_equal 1, split[:hard]
+    assert_equal 75, split[:easy_percent]
+  end
+
+  test "effort_split ignores activities with no effort recorded" do
+    Activity.delete_all
+    Activity.create!(title: "Rated", activity_type: "run", started_at: Time.current, distance_km: 5, duration_minutes: 30, effort: 2)
+    Activity.create!(title: "Unrated", activity_type: "run", started_at: Time.current, distance_km: 5, duration_minutes: 30)
+
+    assert_equal 1, Activity.effort_split[:rated]
+  end
+
+  test "effort_split is nil when nothing has been rated" do
+    Activity.update_all(effort: nil)
+    assert_nil Activity.effort_split
+  end
+
+  test "pace_trend compares the last four weeks with the four before" do
+    Activity.delete_all
+    # Recent block: 5km in 25 min = 5:00/km. Earlier block: 5km in 30 min = 6:00/km.
+    Activity.create!(title: "Recent", activity_type: "run", started_at: 1.week.ago, distance_km: 5, duration_minutes: 25)
+    Activity.create!(title: "Older", activity_type: "run", started_at: 6.weeks.ago, distance_km: 5, duration_minutes: 30)
+
+    trend = Activity.pace_trend
+
+    assert_equal 5.0, trend[:current_pace]
+    assert_equal 6.0, trend[:previous_pace]
+    assert_equal(-60, trend[:delta_seconds]) # a minute per km faster
+  end
+
+  test "pace_trend has no delta without a previous block to compare" do
+    Activity.delete_all
+    Activity.create!(title: "Only", activity_type: "run", started_at: 1.week.ago, distance_km: 5, duration_minutes: 25)
+
+    trend = Activity.pace_trend
+
+    assert_equal 5.0, trend[:current_pace]
+    assert_nil trend[:delta_seconds]
+  end
+
+  test "pace_trend is nil with no recent runs" do
+    Activity.delete_all
+    assert_nil Activity.pace_trend
+  end
+
+  test "race_predictions projects longer distances from the best recent run" do
+    Activity.delete_all
+    # 10km in 50 minutes — a 5:00/km effort.
+    Activity.create!(title: "Time trial", activity_type: "run", started_at: 1.week.ago, distance_km: 10, duration_minutes: 50)
+
+    result = Activity.race_predictions
+
+    assert_equal "Time trial", result[:basis][:title]
+    assert_equal 10.0, result[:basis][:distance_km]
+
+    five_k = result[:predictions].find { |p| p[:label] == "5K" }
+    # Riegel: 3000s * (5/10)^1.06 = 1439s, comfortably under half of 50 minutes.
+    assert_in_delta 1439, five_k[:seconds], 2
+
+    marathon = result[:predictions].find { |p| p[:label] == "Marathon" }
+    assert_operator marathon[:seconds], :>, 3000 * 2
+  end
+
+  test "race_predictions ignores rides and very short efforts" do
+    Activity.delete_all
+    Activity.create!(title: "Fast spin", activity_type: "ride", started_at: 1.week.ago, distance_km: 20, duration_minutes: 40)
+    Activity.create!(title: "Sprint", activity_type: "run", started_at: 1.week.ago, distance_km: 1, duration_minutes: 3)
+
+    assert_nil Activity.race_predictions
+  end
+
   test "pace_per_km divides duration by distance" do
     assert_equal 6.0, build(distance_km: 5.0, duration_minutes: 30).pace_per_km
     assert_equal 4.5, build(distance_km: 10.0, duration_minutes: 45).pace_per_km

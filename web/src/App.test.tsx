@@ -10,6 +10,9 @@ const summary = (over: Record<string, unknown> = {}) => ({
   current_streak_weeks: 0,
   records: { longest_run: null, fastest_pace: null },
   weekly_series: [],
+  pace_trend: null,
+  race_predictions: null,
+  effort_split: null,
   ...over,
 });
 
@@ -35,6 +38,7 @@ const sampleRun = {
   distance_km: "5.0",
   duration_minutes: 30,
   notes: "Easy effort",
+  effort: 3,
   pace_per_km: "6.0",
 };
 
@@ -179,6 +183,72 @@ describe("the dashboard", () => {
   });
 });
 
+describe("the new panels", () => {
+  it("shows projected race times and says what they are based on", async () => {
+    fetchMock.mockResolvedValue(
+      json(
+        feed([sampleRun], {
+          race_predictions: {
+            basis: { title: "Time trial", distance_km: 10, started_at: sampleRun.started_at },
+            predictions: [
+              { label: "5K", distance_km: 5, seconds: 1439 },
+              { label: "Marathon", distance_km: 42.195, seconds: 14400 },
+            ],
+          },
+        }),
+      ),
+    );
+
+    render(<App />);
+
+    expect(await screen.findByText(/if you raced today/i)).toBeInTheDocument();
+    expect(screen.getByText("23:59")).toBeInTheDocument(); // 1439s
+    expect(screen.getByText("4:00:00")).toBeInTheDocument(); // 14400s
+    expect(screen.getByText(/projected from Time trial/i)).toBeInTheDocument();
+  });
+
+  it("shows the easy/hard split against the target", async () => {
+    fetchMock.mockResolvedValue(
+      json(
+        feed([sampleRun], {
+          effort_split: { easy: 30, hard: 24, rated: 54, easy_percent: 56, target_percent: 80 },
+        }),
+      ),
+    );
+
+    render(<App />);
+
+    expect(await screen.findByText(/easy vs hard/i)).toBeInTheDocument();
+    expect(screen.getByText("56%")).toBeInTheDocument();
+    expect(screen.getByText(/30 easy, 24 hard/i)).toBeInTheDocument();
+  });
+
+  it("hides both panels when the API has nothing to report", async () => {
+    fetchMock.mockResolvedValue(json(feed([sampleRun])));
+
+    render(<App />);
+    await screen.findByText("Morning run");
+
+    expect(screen.queryByText(/if you raced today/i)).not.toBeInTheDocument();
+    expect(screen.queryByText(/easy vs hard/i)).not.toBeInTheDocument();
+  });
+
+  it("reports the pace trend inside the chart card", async () => {
+    fetchMock.mockResolvedValue(
+      json(
+        feed([sampleRun], {
+          weekly_series: [{ week_start: "2026-08-24", distance_km: 20 }],
+          pace_trend: { current_pace: 5.75, previous_pace: 5.85, delta_seconds: -6, weeks: 4 },
+        }),
+      ),
+    );
+
+    render(<App />);
+
+    expect(await screen.findByText(/6s\/km faster than the 4 before/i)).toBeInTheDocument();
+  });
+});
+
 describe("saving a run", () => {
   it("posts the run and refreshes the feed", async () => {
     const user = userEvent.setup();
@@ -304,6 +374,7 @@ describe("logging a past ride", () => {
     await user.type(screen.getByLabelText(/date/i), "2026-08-24");
     await user.type(screen.getByLabelText(/distance/i), "24");
     await user.type(screen.getByLabelText(/duration/i), "62");
+    await user.selectOptions(screen.getByLabelText(/effort/i), "6");
     await user.type(screen.getByLabelText(/notes/i), "Windy");
     await user.click(saveButton());
 
@@ -311,6 +382,7 @@ describe("logging a past ride", () => {
     const sent = JSON.parse(fetchMock.mock.calls[1][1].body).activity;
     expect(sent.activity_type).toBe("ride");
     expect(sent.notes).toBe("Windy");
+    expect(sent.effort).toBe(6);
     expect(new Date(sent.started_at).getFullYear()).toBe(2026);
   });
 

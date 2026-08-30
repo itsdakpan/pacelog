@@ -11,7 +11,24 @@ const shortDate = (iso: string) => {
  * Hand-rolled rather than a charting library: twelve bars need no dependency.
  * Every bar carries its own value so the chart can be read without hovering.
  */
-export function WeeklyChart({ series }: { series: Summary["weekly_series"] }) {
+type Props = { series: Summary["weekly_series"]; trend: Summary["pace_trend"] };
+
+const paceLabel = (minutes: number) => {
+  const total = Math.round(minutes * 60);
+  return `${Math.floor(total / 60)}:${String(total % 60).padStart(2, "0")}/km`;
+};
+
+function trendSentence(trend: NonNullable<Summary["pace_trend"]>) {
+  const current = `Average ${paceLabel(trend.current_pace)} over the last ${trend.weeks} weeks`;
+  if (trend.delta_seconds === null) return `${current}.`;
+  if (trend.delta_seconds === 0) return `${current} — unchanged on the ${trend.weeks} before.`;
+
+  const seconds = Math.abs(trend.delta_seconds);
+  const direction = trend.delta_seconds < 0 ? "faster" : "slower";
+  return `${current} — ${seconds}s/km ${direction} than the ${trend.weeks} before.`;
+}
+
+export function WeeklyChart({ series, trend }: Props) {
   if (series.length === 0) return null;
 
   const peak = Math.max(...series.map((week) => week.distance_km), 1);
@@ -35,6 +52,8 @@ export function WeeklyChart({ series }: { series: Summary["weekly_series"] }) {
           </div>
         ))}
       </div>
+
+      {trend && <p className="stat-note chart-trend">{trendSentence(trend)}</p>}
     </section>
   );
 }

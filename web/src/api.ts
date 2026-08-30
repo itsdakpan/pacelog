@@ -9,6 +9,7 @@ export type Activity = {
   distance_km: string | number;
   duration_minutes: number;
   notes: string | null;
+  effort: number | null;
   pace_per_km: string | number | null;
 };
 
@@ -24,6 +25,12 @@ export type Summary = {
     fastest_pace: (Record_ & { pace_per_km: number }) | null;
   };
   weekly_series: { week_start: string; distance_km: number }[];
+  pace_trend: { current_pace: number; previous_pace: number | null; delta_seconds: number | null; weeks: number } | null;
+  race_predictions: {
+    basis: { title: string; distance_km: number; started_at: string };
+    predictions: { label: string; distance_km: number; seconds: number }[];
+  } | null;
+  effort_split: { easy: number; hard: number; rated: number; easy_percent: number; target_percent: number } | null;
 };
 
 export const EMPTY_SUMMARY: Summary = {
@@ -33,6 +40,9 @@ export const EMPTY_SUMMARY: Summary = {
   current_streak_weeks: 0,
   records: { longest_run: null, fastest_pace: null },
   weekly_series: [],
+  pace_trend: null,
+  race_predictions: null,
+  effort_split: null,
 };
 
 export type Feed = { activities: Activity[]; summary: Summary };
@@ -45,6 +55,8 @@ export type NewActivity = {
   /** ISO 8601. Chosen in the form, so past activities can be logged. */
   started_at: string;
   notes: string;
+  /** Perceived effort 1-10, or "" when not rated. */
+  effort: string;
 };
 
 /**
@@ -149,6 +161,7 @@ export function createActivity(input: NewActivity): Promise<{ activity: Activity
         duration_minutes: input.duration_minutes,
         started_at: input.started_at,
         notes: notes === "" ? null : notes,
+        effort: input.effort === "" ? null : Number(input.effort),
       },
     }),
   });

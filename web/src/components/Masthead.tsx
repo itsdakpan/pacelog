@@ -13,14 +13,17 @@ export function Masthead({ summary }: { summary: Summary }) {
         <article>
           <small>This week</small>
           <strong className="num">{summary.weekly_distance_km} km</strong>
+          <span className="stat-note">since Monday</span>
         </article>
         <article>
-          <small>All distance</small>
+          <small>Total distance</small>
           <strong className="num">{summary.total_distance_km} km</strong>
+          <span className="stat-note">every activity logged</span>
         </article>
         <article>
           <small>Activities</small>
           <strong className="num">{summary.activities_count}</strong>
+          <span className="stat-note">runs, rides and walks</span>
         </article>
         <article>
           <small>Weeks in a row</small>

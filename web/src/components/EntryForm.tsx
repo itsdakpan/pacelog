@@ -14,6 +14,7 @@ export function EntryForm({ saving, onSave }: Props) {
   const [distance, setDistance] = useState("");
   const [minutes, setMinutes] = useState("");
   const [notes, setNotes] = useState("");
+  const [effort, setEffort] = useState("");
   const [error, setError] = useState("");
 
   async function submit(event: FormEvent) {
@@ -29,6 +30,7 @@ export function EntryForm({ saving, onSave }: Props) {
       // entry cannot slip into an adjacent day when converted to UTC.
       started_at: date ? new Date(`${date}T12:00:00`).toISOString() : "",
       notes,
+      effort,
     };
 
     const invalid = validate(form);
@@ -48,6 +50,7 @@ export function EntryForm({ saving, onSave }: Props) {
     setDistance("");
     setMinutes("");
     setNotes("");
+    setEffort("");
     setActivityType("run");
     setDate(todayValue());
   }
@@ -88,6 +91,17 @@ export function EntryForm({ saving, onSave }: Props) {
       <label>
         Duration (minutes)
         <input type="number" value={minutes} onChange={(e) => setMinutes(e.target.value)} placeholder="30" />
+      </label>
+      <label>
+        Effort (optional)
+        <select value={effort} onChange={(e) => setEffort(e.target.value)}>
+          <option value="">Not rated</option>
+          <option value="2">1-2 — very easy</option>
+          <option value="4">3-4 — easy</option>
+          <option value="6">5-6 — steady</option>
+          <option value="8">7-8 — hard</option>
+          <option value="10">9-10 — maximal</option>
+        </select>
       </label>
       <label>
         Notes
