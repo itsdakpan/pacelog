@@ -12,7 +12,6 @@ const summary = (over: Record<string, unknown> = {}) => ({
   weekly_series: [],
   pace_trend: null,
   race_predictions: null,
-  effort_split: null,
   ...over,
 });
 
@@ -184,7 +183,7 @@ describe("the dashboard", () => {
 });
 
 describe("the new panels", () => {
-  it("shows projected race times and says what they are based on", async () => {
+  it("shows projected race times", async () => {
     fetchMock.mockResolvedValue(
       json(
         feed([sampleRun], {
@@ -204,33 +203,15 @@ describe("the new panels", () => {
     expect(await screen.findByText(/if you raced today/i)).toBeInTheDocument();
     expect(screen.getByText("23:59")).toBeInTheDocument(); // 1439s
     expect(screen.getByText("4:00:00")).toBeInTheDocument(); // 14400s
-    expect(screen.getByText(/projected from Time trial/i)).toBeInTheDocument();
   });
 
-  it("shows the easy/hard split against the target", async () => {
-    fetchMock.mockResolvedValue(
-      json(
-        feed([sampleRun], {
-          effort_split: { easy: 30, hard: 24, rated: 54, easy_percent: 56, target_percent: 80 },
-        }),
-      ),
-    );
-
-    render(<App />);
-
-    expect(await screen.findByText(/easy vs hard/i)).toBeInTheDocument();
-    expect(screen.getByText("56%")).toBeInTheDocument();
-    expect(screen.getByText(/30 easy, 24 hard/i)).toBeInTheDocument();
-  });
-
-  it("hides both panels when the API has nothing to report", async () => {
+  it("hides the predictions panel when the API has nothing to report", async () => {
     fetchMock.mockResolvedValue(json(feed([sampleRun])));
 
     render(<App />);
     await screen.findByText("Morning run");
 
     expect(screen.queryByText(/if you raced today/i)).not.toBeInTheDocument();
-    expect(screen.queryByText(/easy vs hard/i)).not.toBeInTheDocument();
   });
 
   it("reports the pace trend inside the chart card", async () => {

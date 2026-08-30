@@ -2,7 +2,6 @@ import "./App.css";
 import { ActivityLog } from "./components/ActivityLog";
 import { EntryForm } from "./components/EntryForm";
 import { Masthead } from "./components/Masthead";
-import { EffortBalance } from "./components/EffortBalance";
 import { PersonalRecords } from "./components/PersonalRecords";
 import { RacePredictions } from "./components/RacePredictions";
 import { WeeklyChart } from "./components/WeeklyChart";
@@ -19,10 +18,7 @@ export default function App() {
 
       <PersonalRecords records={summary.records} />
 
-      <div className="panels">
-        <RacePredictions data={summary.race_predictions} />
-        <EffortBalance split={summary.effort_split} />
-      </div>
+      <RacePredictions data={summary.race_predictions} />
 
       <section className="grid">
         <EntryForm saving={saving} onSave={save} />

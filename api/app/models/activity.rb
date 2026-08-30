@@ -44,11 +44,6 @@ class Activity < ApplicationRecord
     streak
   end
 
-  # Runs at or below this perceived effort count as easy. The 80/20 principle
-  # holds that roughly four fifths of running should sit here.
-  EASY_EFFORT_CEILING = 4
-  EASY_TARGET_PERCENT = 80
-
   BLOCK_WEEKS = 4
 
   RACE_DISTANCES = [
@@ -65,17 +60,6 @@ class Activity < ApplicationRecord
   # Shortest effort worth projecting from — below this, pace says more about
   # your sprint than your endurance.
   MIN_PREDICTION_DISTANCE_KM = 3.0
-
-  def self.effort_split
-    rated = where.not(effort: nil)
-    return nil if rated.empty?
-
-    easy = rated.where(effort: ..EASY_EFFORT_CEILING).count
-    total = rated.count
-
-    { easy: easy, hard: total - easy, rated: total,
-      easy_percent: (easy.to_f / total * 100).round, target_percent: EASY_TARGET_PERCENT }
-  end
 
   # Average pace over the last four weeks against the four before it. Weighted
   # by distance — a mean of per-run paces would let a short run count as much

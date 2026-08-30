@@ -21,9 +21,6 @@ export function RacePredictions({ data }: { data: Summary["race_predictions"] })
     <section className="panel">
       <div className="panel-head">
         <h2>If you raced today</h2>
-        <small>
-          projected from {data.basis.title} — {data.basis.distance_km} km
-        </small>
       </div>
 
       <table className="table">
@@ -38,10 +35,6 @@ export function RacePredictions({ data }: { data: Summary["race_predictions"] })
         </tbody>
       </table>
 
-      <p className="stat-note">
-        Estimated with Riegel's formula. Accuracy drops the further the race is from the run it is
-        based on, so treat the marathon as a rough guide.
-      </p>
     </section>
   );
 }

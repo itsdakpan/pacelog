@@ -30,7 +30,6 @@ export type Summary = {
     basis: { title: string; distance_km: number; started_at: string };
     predictions: { label: string; distance_km: number; seconds: number }[];
   } | null;
-  effort_split: { easy: number; hard: number; rated: number; easy_percent: number; target_percent: number } | null;
 };
 
 export const EMPTY_SUMMARY: Summary = {
@@ -42,7 +41,6 @@ export const EMPTY_SUMMARY: Summary = {
   weekly_series: [],
   pace_trend: null,
   race_predictions: null,
-  effort_split: null,
 };
 
 export type Feed = { activities: Activity[]; summary: Summary };

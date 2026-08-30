@@ -87,31 +87,6 @@ class ActivityTest < ActiveSupport::TestCase
     assert_predicate build(effort: 5.5), :invalid?
   end
 
-  test "effort_split reports the share of easy running" do
-    Activity.delete_all
-    3.times { Activity.create!(title: "Easy", activity_type: "run", started_at: Time.current, distance_km: 5, duration_minutes: 30, effort: 3) }
-    Activity.create!(title: "Hard", activity_type: "run", started_at: Time.current, distance_km: 5, duration_minutes: 20, effort: 8)
-
-    split = Activity.effort_split
-
-    assert_equal 3, split[:easy]
-    assert_equal 1, split[:hard]
-    assert_equal 75, split[:easy_percent]
-  end
-
-  test "effort_split ignores activities with no effort recorded" do
-    Activity.delete_all
-    Activity.create!(title: "Rated", activity_type: "run", started_at: Time.current, distance_km: 5, duration_minutes: 30, effort: 2)
-    Activity.create!(title: "Unrated", activity_type: "run", started_at: Time.current, distance_km: 5, duration_minutes: 30)
-
-    assert_equal 1, Activity.effort_split[:rated]
-  end
-
-  test "effort_split is nil when nothing has been rated" do
-    Activity.update_all(effort: nil)
-    assert_nil Activity.effort_split
-  end
-
   test "pace_trend compares the last four weeks with the four before" do
     Activity.delete_all
     # Recent block: 5km in 25 min = 5:00/km. Earlier block: 5km in 30 min = 6:00/km.

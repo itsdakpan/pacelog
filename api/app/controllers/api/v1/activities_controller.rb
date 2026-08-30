@@ -41,8 +41,7 @@ class Api::V1::ActivitiesController < ApplicationController
       records: Activity.records,
       weekly_series: Activity.weekly_series,
       pace_trend: Activity.pace_trend,
-      race_predictions: Activity.race_predictions,
-      effort_split: Activity.effort_split
+      race_predictions: Activity.race_predictions
     }
   end
 end
