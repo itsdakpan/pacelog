@@ -1,0 +1,69 @@
+<!doctype html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>B — Splits</title>
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Instrument+Serif:ital@0;1&family=JetBrains+Mono:wght@400;500;700&family=Inter:wght@400;500&display=swap" rel="stylesheet">
+<style>
+:root{--paper:#f4f5f2;--ink:#12151a;--muted:#6e7480;--rule:#d9dcd6;--accent:#1f4fd8;--serif:"Instrument Serif",Georgia,serif;--mono:"JetBrains Mono",ui-monospace,monospace;--sans:Inter,system-ui,sans-serif}
+*{box-sizing:border-box}body{margin:0;background:var(--paper);color:var(--ink);font-family:var(--sans)}
+.wrap{max-width:1120px;margin:auto;padding:52px 40px 80px}
+.top{display:grid;grid-template-columns:1fr auto;gap:40px;align-items:end;border-bottom:2px solid var(--ink);padding-bottom:26px}
+.eyebrow{font-family:var(--mono);font-size:.64rem;letter-spacing:.24em;text-transform:uppercase;color:var(--muted);margin:0}
+h1{font-family:var(--serif);font-weight:400;font-size:clamp(2.8rem,5.4vw,4.2rem);line-height:.95;margin:.3em 0 0;letter-spacing:-.015em}
+/* SIGNATURE: the pace band — a runner's wrist strip of this week's splits */
+.band{display:flex;border:1.5px solid var(--ink);border-radius:3px;overflow:hidden;background:#fff}
+.band div{padding:9px 13px;border-right:1px solid var(--rule);text-align:center}
+.band div:last-child{border-right:0}
+.band b{display:block;font-family:var(--mono);font-size:.92rem;font-weight:500;font-variant-numeric:tabular-nums}
+.band span{display:block;font-family:var(--mono);font-size:.52rem;letter-spacing:.14em;text-transform:uppercase;color:var(--muted);margin-top:3px}
+.band div.hot b{color:var(--accent)}
+.strip{display:grid;grid-template-columns:repeat(12,1fr);gap:3px;margin:34px 0 0;height:64px;align-items:end}
+.strip i{background:#c9cec6;border-radius:1px}
+.strip i.on{background:var(--accent)}
+.striplab{display:flex;justify-content:space-between;font-family:var(--mono);font-size:.56rem;color:var(--muted);margin-top:7px;letter-spacing:.1em;text-transform:uppercase}
+.grid3{display:grid;grid-template-columns:repeat(3,1fr);gap:1px;background:var(--rule);border:1px solid var(--rule);margin-top:40px}
+.cell{background:var(--paper);padding:17px 18px}
+.cell dt{font-family:var(--mono);font-size:.56rem;letter-spacing:.16em;text-transform:uppercase;color:var(--muted)}
+.cell dd{margin:7px 0 0;font-family:var(--serif);font-size:1.55rem}
+.cell dd b{font-family:var(--mono);font-weight:500;font-size:1.1rem;color:var(--accent);font-variant-numeric:tabular-nums}
+table{width:100%;border-collapse:collapse;margin-top:46px}
+th{font-family:var(--mono);font-weight:400;font-size:.56rem;letter-spacing:.16em;text-transform:uppercase;color:var(--muted);text-align:left;padding:0 0 9px;border-bottom:2px solid var(--ink)}
+th.r,td.r{text-align:right}
+td{padding:15px 0;border-bottom:1px solid var(--rule);vertical-align:baseline}
+.dt{font-family:var(--mono);font-size:.64rem;color:var(--muted);letter-spacing:.06em;white-space:nowrap}
+.ti{font-family:var(--serif);font-size:1.22rem}
+.ti i{display:block;font-family:var(--sans);font-style:normal;font-size:.75rem;color:var(--muted);margin-top:2px}
+.num{font-family:var(--mono);font-size:.82rem;font-variant-numeric:tabular-nums;color:#3c4048}
+/* pace is the column runners scan — it gets the weight */
+.pc{font-family:var(--mono);font-size:1.02rem;font-weight:700;font-variant-numeric:tabular-nums;letter-spacing:-.01em}
+.sport{font-family:var(--mono);font-size:.52rem;letter-spacing:.14em;text-transform:uppercase;color:var(--muted)}
+</style></head><body><div class="wrap">
+<div class="top">
+  <div><p class="eyebrow">Pacelog — training log</p><h1>Twelve weeks,<br>fifty-three sessions.</h1></div>
+  <div class="band">
+    <div><b>24.3</b><span>This wk</span></div>
+    <div><b>389.4</b><span>Total km</span></div>
+    <div class="hot"><b>5:00</b><span>Best pace</span></div>
+    <div><b>12</b><span>Streak</span></div>
+  </div>
+</div>
+<div class="strip" id="strip"></div>
+<div class="striplab"><span>8 Jun</span><span>Weekly volume</span><span>24 Aug</span></div>
+<dl class="grid3">
+  <div class="cell"><dt>Longest run</dt><dd>Coast path long · <b>10.9 km</b></dd></div>
+  <div class="cell"><dt>Fastest pace</dt><dd>Park tempo · <b>5:00/km</b></dd></div>
+  <div class="cell"><dt>Biggest week</dt><dd>10 Aug · <b>62.8 km</b></dd></div>
+</dl>
+<table>
+<thead><tr><th>Date</th><th>Session</th><th class="r">Dist</th><th class="r">Time</th><th class="r">Pace</th><th class="r">♥</th></tr></thead>
+<tbody>
+<tr><td class="dt">SAT 29 AUG</td><td class="ti"><span class="sport">Run</span><br>Riverside easy<i>Felt strong</i></td><td class="num r">7.9 km</td><td class="num r">49:00</td><td class="pc r">6:12/km</td><td class="num r">13</td></tr>
+<tr><td class="dt">THU 27 AUG</td><td class="ti"><span class="sport">Run</span><br>Progression run<i>Cold and clear</i></td><td class="num r">8.5 km</td><td class="num r">43:00</td><td class="pc r">5:04/km</td><td class="num r">6</td></tr>
+<tr><td class="dt">TUE 25 AUG</td><td class="ti"><span class="sport">Run</span><br>Morning shakeout</td><td class="num r">7.9 km</td><td class="num r">48:00</td><td class="pc r">6:05/km</td><td class="num r">10</td></tr>
+<tr><td class="dt">SUN 23 AUG</td><td class="ti"><span class="sport">Run</span><br>Coast path long<i>Legs heavy</i></td><td class="num r">10.9 km</td><td class="num r">1:09:00</td><td class="pc r">6:20/km</td><td class="num r">1</td></tr>
+<tr><td class="dt">FRI 21 AUG</td><td class="ti"><span class="sport">Ride</span><br>Recovery spin</td><td class="num r">25.7 km</td><td class="num r">1:07:00</td><td class="pc r">2:36/km</td><td class="num r">4</td></tr>
+<tr><td class="dt">WED 19 AUG</td><td class="ti"><span class="sport">Run</span><br>Park tempo<i>Negative split</i></td><td class="num r">6.6 km</td><td class="num r">33:00</td><td class="pc r">5:00/km</td><td class="num r">1</td></tr>
+</tbody></table>
+</div><script>
+const w=[18.1,42.1,28.5,15.9,26.0,49.4,36.4,20.1,34.1,62.8,31.7,24.3],m=Math.max(...w);
+document.getElementById('strip').innerHTML=w.map(v=>`<i class="${v===m?'on':''}" style="height:${Math.round(v/m*100)}%"></i>`).join('');
+</script></body></html>

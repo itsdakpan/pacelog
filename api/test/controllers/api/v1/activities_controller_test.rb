@@ -31,6 +31,18 @@ class Api::V1::ActivitiesControllerTest < ActionDispatch::IntegrationTest
     assert_equal activities(:morning_run).started_at.iso8601(3), Time.parse(morning["started_at"]).utc.iso8601(3)
   end
 
+  test "index summary carries the streak, records and weekly series" do
+    get api_v1_activities_url
+
+    summary = JSON.parse(response.body)["summary"]
+
+    assert_equal 2, summary["current_streak_weeks"]
+    assert_equal 12, summary["weekly_series"].size
+    assert_equal %w[week_start distance_km], summary["weekly_series"].first.keys
+    assert_equal "Morning run", summary.dig("records", "longest_run", "title")
+    assert_equal 20.0, summary.dig("records", "biggest_week", "distance_km")
+  end
+
   test "create persists a valid activity and returns it" do
     assert_difference "Activity.count", 1 do
       post api_v1_activities_url, params: {

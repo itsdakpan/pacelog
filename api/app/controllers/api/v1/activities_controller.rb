@@ -30,9 +30,16 @@ class Api::V1::ActivitiesController < ApplicationController
     activity.as_json(only: %i[id title activity_type started_at distance_km duration_minutes notes kudos_count]).merge(pace_per_km: activity.pace_per_km)
   end
 
-  def summary_for(activities)
-    week_start = Time.current.beginning_of_week
-    weekly = activities.select { |activity| activity.started_at >= week_start }
-    { total_distance_km: activities.sum(&:distance_km).to_f.round(1), weekly_distance_km: weekly.sum(&:distance_km).to_f.round(1), activities_count: activities.size }
+  # Aggregates come from SQL rather than the loaded collection so the summary
+  # does not depend on every activity being in memory.
+  def summary_for(_activities)
+    {
+      total_distance_km: Activity.sum(:distance_km).to_f.round(1),
+      weekly_distance_km: Activity.where(started_at: Time.current.beginning_of_week..).sum(:distance_km).to_f.round(1),
+      activities_count: Activity.count,
+      current_streak_weeks: Activity.current_streak_weeks,
+      records: Activity.records,
+      weekly_series: Activity.weekly_series
+    }
   end
 end
