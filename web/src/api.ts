@@ -1,0 +1,131 @@
+export type Activity = {
+  id: number;
+  title: string;
+  activity_type: string;
+  // Rails serialises decimals as strings, so these arrive as strings even
+  // though they are numbers conceptually.
+  distance_km: string | number;
+  duration_minutes: number;
+  notes: string | null;
+  kudos_count: number;
+  pace_per_km: string | number | null;
+};
+
+export type Summary = {
+  total_distance_km: number;
+  weekly_distance_km: number;
+  activities_count: number;
+};
+
+export type Feed = { activities: Activity[]; summary: Summary };
+
+export type NewActivity = {
+  title: string;
+  distance_km: string;
+  duration_minutes: string;
+};
+
+/**
+ * Why the failure kinds matter: the previous version reported every failure as
+ * "Add a title, distance, and duration", so an unreachable API — or the
+ * portfolio's Next.js server answering on the same port — looked to the user
+ * like their own typo.
+ */
+export type ApiErrorKind =
+  | "offline" // the request never reached a server
+  | "wrong-server" // something answered, but it is not this API
+  | "validation" // the API rejected the record (422)
+  | "http"; // any other non-OK response
+
+export class ApiError extends Error {
+  readonly kind: ApiErrorKind;
+  readonly status?: number;
+  readonly messages: string[];
+
+  constructor(kind: ApiErrorKind, message: string, status?: number, messages: string[] = []) {
+    super(message);
+    this.name = "ApiError";
+    this.kind = kind;
+    this.status = status;
+    this.messages = messages;
+  }
+}
+
+export const API_BASE = "/api/v1";
+
+const OFFLINE_MESSAGE =
+  "Can't reach the API. Start it with bin/dev (it listens on port 3001), then try again.";
+
+const wrongServerMessage = (status: number) =>
+  `Port 3001 answered with a ${status}, but not as the PaceLog API. Another app may have claimed the port — restart with bin/dev.`;
+
+async function request<T>(path: string, init?: RequestInit): Promise<T> {
+  let response: Response;
+  try {
+    response = await fetch(`${API_BASE}${path}`, init);
+  } catch {
+    // fetch only rejects when the request never completed: DNS, refused
+    // connection, dead proxy target.
+    throw new ApiError("offline", OFFLINE_MESSAGE);
+  }
+
+  // A dev-proxy 502/504 means the proxy itself could not reach the API, which
+  // is the "API is not running" case rather than a wrong server on the port.
+  if (response.status === 502 || response.status === 503 || response.status === 504) {
+    throw new ApiError("offline", OFFLINE_MESSAGE, response.status);
+  }
+
+  const contentType = response.headers.get("content-type") ?? "";
+  if (!contentType.includes("application/json")) {
+    // A 404 HTML page here means some other server is on the API port.
+    throw new ApiError("wrong-server", wrongServerMessage(response.status), response.status);
+  }
+
+  let body: unknown;
+  try {
+    body = await response.json();
+  } catch {
+    throw new ApiError("wrong-server", wrongServerMessage(response.status), response.status);
+  }
+
+  if (response.status === 422) {
+    const errors = (body as { errors?: unknown }).errors;
+    const messages = Array.isArray(errors) ? errors.map(String) : [];
+    throw new ApiError(
+      "validation",
+      messages[0] ?? "That activity was rejected. Check the fields and try again.",
+      422,
+      messages,
+    );
+  }
+
+  if (!response.ok) {
+    throw new ApiError("http", `The API returned an error (${response.status}).`, response.status);
+  }
+
+  return body as T;
+}
+
+export function fetchFeed(): Promise<Feed> {
+  return request<Feed>("/activities");
+}
+
+export function createActivity(input: NewActivity): Promise<{ activity: Activity }> {
+  return request<{ activity: Activity }>("/activities", {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({
+      activity: {
+        title: input.title.trim(),
+        activity_type: "run",
+        distance_km: input.distance_km,
+        duration_minutes: input.duration_minutes,
+        started_at: new Date().toISOString(),
+      },
+    }),
+  });
+}
+
+export function giveKudos(id: number): Promise<{ activity: Activity }> {
+  return request<{ activity: Activity }>(`/activities/${id}/kudos`, { method: "POST" });
+}

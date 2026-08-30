@@ -1,0 +1,7 @@
+.DS_Store
+*.log
+
+# Editor directories
+.vscode/*
+!.vscode/extensions.json
+.idea
