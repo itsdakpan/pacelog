@@ -87,11 +87,14 @@ const configuredApiBase = import.meta.env.VITE_API_BASE_URL?.trim();
 // double slashes when request paths are appended.
 export const API_BASE = (configuredApiBase || "/api/v1").replace(/\/$/, "");
 
-const OFFLINE_MESSAGE =
-  "Can't reach the API. Start it with bin/dev (it listens on port 3001), then try again.";
+const OFFLINE_MESSAGE = import.meta.env.DEV
+  ? "Can't reach the API. Start it with bin/dev (it listens on port 3001), then try again."
+  : "PaceLog's activity service is not connected yet. Your activities cannot be loaded or saved.";
 
 const wrongServerMessage = (status: number) =>
-  `Port 3001 answered with a ${status}, but not as the PaceLog API. Another app may have claimed the port — restart with bin/dev.`;
+  import.meta.env.DEV
+    ? `Port 3001 answered with a ${status}, but not as the PaceLog API. Another app may have claimed the port — restart with bin/dev.`
+    : `PaceLog's activity service is not connected yet (${status}). Your activities cannot be loaded or saved.`;
 
 async function request<T>(path: string, init?: RequestInit): Promise<T> {
   let response: Response;
