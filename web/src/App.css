@@ -17,6 +17,10 @@ h2{margin-top:0}
 label{display:block;color:#cdd1c7;font-size:.85rem;margin:18px 0}
 input,select{width:100%;margin-top:7px;padding:12px;background:#10120f;color:white;border:1px solid #41473b;border-radius:9px}
 input:hover,select:hover{border-color:#5a6150}
+select{appearance:none;padding-right:42px;background-image:linear-gradient(45deg,transparent 50%,#b8ff6a 50%),linear-gradient(135deg,#b8ff6a 50%,transparent 50%);background-position:calc(100% - 18px) 50%,calc(100% - 13px) 50%;background-size:5px 5px,5px 5px;background-repeat:no-repeat;font-weight:650;cursor:pointer;transition:border-color .15s ease,box-shadow .15s ease,background-color .15s ease}
+select:hover{background-color:#151812;border-color:#69725e}
+select:focus-visible{outline:0;border-color:#b8ff6a;box-shadow:0 0 0 3px rgba(184,255,106,.13)}
+select option{background:#171a15;color:#f5f5ef;font-weight:500}
 button{border:0;border-radius:9px;padding:12px 16px;background:#b8ff6a;color:#14200a;font-weight:800;cursor:pointer;transition:background .15s ease}
 button:hover:not(:disabled){background:#c9ff8a}
 button:disabled{background:#2e352a;color:#8a9182;cursor:not-allowed}
