@@ -1,5 +1,5 @@
 import { beforeEach, describe, expect, it, vi } from "vitest";
-import { ApiError, createActivity, fetchFeed, giveKudos } from "./api";
+import { ApiError, createActivity, fetchFeed } from "./api";
 
 const jsonResponse = (body: unknown, status = 200) =>
   new Response(JSON.stringify(body), {
@@ -53,8 +53,11 @@ describe("failure classification", () => {
 
     const error = await createActivity({
       title: "Morning run",
+      activity_type: "run",
       distance_km: "5",
       duration_minutes: "30",
+      started_at: "2026-08-30T07:00:00.000Z",
+      notes: "",
     }).catch((caught: unknown) => caught);
 
     expect(error).toBeInstanceOf(ApiError);
@@ -68,8 +71,11 @@ describe("failure classification", () => {
 
     const error = await createActivity({
       title: "Morning run",
+      activity_type: "run",
       distance_km: "5",
       duration_minutes: "30",
+      started_at: "2026-08-30T07:00:00.000Z",
+      notes: "",
     }).catch((caught: unknown) => caught);
 
     expect((error as ApiError).kind).toBe("wrong-server");
@@ -96,8 +102,11 @@ describe("failure classification", () => {
 
     const error = await createActivity({
       title: "",
+      activity_type: "run",
       distance_km: "0",
       duration_minutes: "30",
+      started_at: "2026-08-30T07:00:00.000Z",
+      notes: "",
     }).catch((caught: unknown) => caught);
 
     expect((error as ApiError).kind).toBe("validation");
@@ -120,7 +129,14 @@ describe("createActivity", () => {
     const fetchMock = mockFetch();
     fetchMock.mockResolvedValue(jsonResponse({ activity: { id: 1 } }, 201));
 
-    await createActivity({ title: "  Morning run  ", distance_km: "5.0", duration_minutes: "30" });
+    await createActivity({
+      title: "  Morning run  ",
+      activity_type: "run",
+      distance_km: "5.0",
+      duration_minutes: "30",
+      started_at: "2026-08-30T07:00:00.000Z",
+      notes: "",
+    });
 
     const [url, init] = fetchMock.mock.calls[0];
     expect(url).toBe("/api/v1/activities");
@@ -135,15 +151,40 @@ describe("createActivity", () => {
   });
 });
 
-describe("giveKudos", () => {
-  it("posts to the kudos path for the given activity", async () => {
+describe("createActivity with full detail", () => {
+  it("sends the chosen type, date and notes rather than hardcoding a run", async () => {
     const fetchMock = mockFetch();
-    fetchMock.mockResolvedValue(jsonResponse({ activity: { id: 7, kudos_count: 3 } }));
+    fetchMock.mockResolvedValue(jsonResponse({ activity: { id: 1 } }, 201));
 
-    const { activity } = await giveKudos(7);
+    await createActivity({
+      title: "  Canal loop  ",
+      activity_type: "walk",
+      distance_km: "24.0",
+      duration_minutes: "62",
+      started_at: "2026-08-24T07:15:00.000Z",
+      notes: "  Windy  ",
+    });
 
-    expect(fetchMock.mock.calls[0][0]).toBe("/api/v1/activities/7/kudos");
-    expect(fetchMock.mock.calls[0][1].method).toBe("POST");
-    expect(activity.kudos_count).toBe(3);
+    const sent = JSON.parse(fetchMock.mock.calls[0][1].body).activity;
+    expect(sent.title).toBe("Canal loop");
+    expect(sent.activity_type).toBe("walk");
+    expect(sent.started_at).toBe("2026-08-24T07:15:00.000Z");
+    expect(sent.notes).toBe("Windy");
+  });
+
+  it("sends null rather than an empty string when notes are blank", async () => {
+    const fetchMock = mockFetch();
+    fetchMock.mockResolvedValue(jsonResponse({ activity: { id: 1 } }, 201));
+
+    await createActivity({
+      title: "Morning run",
+      activity_type: "run",
+      distance_km: "5",
+      duration_minutes: "30",
+      started_at: "2026-08-24T07:15:00.000Z",
+      notes: "   ",
+    });
+
+    expect(JSON.parse(fetchMock.mock.calls[0][1].body).activity.notes).toBeNull();
   });
 });

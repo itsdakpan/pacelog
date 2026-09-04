@@ -248,9 +248,13 @@ git commit -m "feat(web): add pace, duration, distance and date formatters"
 
 ---
 
-### Task 3: Serialize `started_at` from the API
+### Task 3: Pin `started_at` in the API contract
 
-`started_at` is stored and permitted but absent from `serialize`, so the client has never been able to show a date.
+**Correction made during execution:** this task originally claimed `started_at`
+was absent from `serialize`. It is not — it is already in the `only:` list at
+`api/app/controllers/api/v1/activities_controller.rb:30`, and the design doc had
+this right. No production change is needed. The test below is kept as a contract
+guard, because Tasks 4 and 6 depend on the field being present in the payload.
 
 **Files:**
 - Modify: `api/app/controllers/api/v1/activities_controller.rb` (the `serialize` private method)
@@ -274,21 +278,15 @@ Add to `api/test/controllers/api/v1/activities_controller_test.rb`:
   end
 ```
 
-- [ ] **Step 2: Run the test to verify it fails**
+- [ ] **Step 2: Run the test**
 
 Run: `cd api && rbenv exec bundle exec rails test test/controllers/api/v1/activities_controller_test.rb`
-Expected: FAIL — `started_at must be serialised`.
+Expected: PASS immediately — the field is already serialised. This is a
+characterisation test, not a red-green cycle.
 
-- [ ] **Step 3: Add the field**
+- [ ] **Step 3: Confirm no production change is required**
 
-In `api/app/controllers/api/v1/activities_controller.rb`, change the `only:` list in `serialize` to include `started_at`:
-
-```ruby
-  def serialize(activity)
-    activity.as_json(only: %i[id title activity_type started_at distance_km duration_minutes notes kudos_count])
-            .merge(pace_per_km: activity.pace_per_km)
-  end
-```
+Verify `started_at` appears in the `only:` list in `serialize`. Make no edit.
 
 - [ ] **Step 4: Run the tests to verify they pass**
 

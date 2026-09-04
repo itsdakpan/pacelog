@@ -38,14 +38,98 @@ class ActivityTest < ActiveSupport::TestCase
     assert_predicate build(duration_minutes: 30.5), :invalid?
   end
 
-  test "defaults kudos_count to zero without clobbering an existing value" do
-    activity = build
-    activity.validate
-    assert_equal 0, activity.kudos_count
+  test "weekly_series returns one bucket per week, zero-filled, oldest first" do
+    series = Activity.weekly_series(weeks: 4)
 
-    existing = build(kudos_count: 4)
-    existing.validate
-    assert_equal 4, existing.kudos_count
+    assert_equal 4, series.size
+    assert_equal series.map { |w| w[:week_start] }.sort, series.map { |w| w[:week_start] }
+    assert_equal Time.current.beginning_of_week.to_date.to_s, series.last[:week_start]
+    # morning_run sits in the current week; long_walk is three days before it.
+    assert_equal 5.0, series.last[:distance_km]
+    assert(series.all? { |w| w[:distance_km].is_a?(Float) }, "weeks with no activity must be 0.0, not nil")
+  end
+
+  test "current_streak_weeks counts consecutive active weeks back from now" do
+    # Fixtures put one activity in the current week and one in the previous week.
+    assert_equal 2, Activity.current_streak_weeks
+  end
+
+  test "current_streak_weeks is zero when there are no activities" do
+    Activity.delete_all
+    assert_equal 0, Activity.current_streak_weeks
+  end
+
+  test "current_streak_weeks tolerates a current week with nothing logged yet" do
+    Activity.where("started_at >= ?", Time.current.beginning_of_week).delete_all
+    # The previous week still counts; the streak is not broken by an unstarted week.
+    assert_equal 1, Activity.current_streak_weeks
+  end
+
+  test "records reports the longest run, not the longest walk" do
+    # long_walk is 20km, morning_run is 5km. A walk must never win "longest run".
+    assert_equal "Morning run", Activity.records[:longest_run][:title]
+  end
+
+  test "records reports the fastest run by pace" do
+    Activity.create!(title: "Speedwork", activity_type: "run", started_at: Time.current,
+                     distance_km: 5.0, duration_minutes: 20)
+
+    assert_equal "Speedwork", Activity.records[:fastest_pace][:title]
+    assert_equal 4.0, Activity.records[:fastest_pace][:pace_per_km]
+  end
+
+  test "pace_trend compares the last four weeks with the four before" do
+    Activity.delete_all
+    # Recent block: 5km in 25 min = 5:00/km. Earlier block: 5km in 30 min = 6:00/km.
+    Activity.create!(title: "Recent", activity_type: "run", started_at: 1.week.ago, distance_km: 5, duration_minutes: 25)
+    Activity.create!(title: "Older", activity_type: "run", started_at: 6.weeks.ago, distance_km: 5, duration_minutes: 30)
+
+    trend = Activity.pace_trend
+
+    assert_equal 5.0, trend[:current_pace]
+    assert_equal 6.0, trend[:previous_pace]
+    assert_equal(-60, trend[:delta_seconds]) # a minute per km faster
+  end
+
+  test "pace_trend has no delta without a previous block to compare" do
+    Activity.delete_all
+    Activity.create!(title: "Only", activity_type: "run", started_at: 1.week.ago, distance_km: 5, duration_minutes: 25)
+
+    trend = Activity.pace_trend
+
+    assert_equal 5.0, trend[:current_pace]
+    assert_nil trend[:delta_seconds]
+  end
+
+  test "pace_trend is nil with no recent runs" do
+    Activity.delete_all
+    assert_nil Activity.pace_trend
+  end
+
+  test "race_predictions projects longer distances from the best recent run" do
+    Activity.delete_all
+    # 10km in 50 minutes — a 5:00/km effort.
+    Activity.create!(title: "Time trial", activity_type: "run", started_at: 1.week.ago, distance_km: 10, duration_minutes: 50)
+
+    result = Activity.race_predictions
+
+    assert_equal "Time trial", result[:basis][:title]
+    assert_equal 10.0, result[:basis][:distance_km]
+
+    five_k = result[:predictions].find { |p| p[:label] == "5K" }
+    # Riegel: 3000s * (5/10)^1.06 = 1439s, comfortably under half of 50 minutes.
+    assert_in_delta 1439, five_k[:seconds], 2
+
+    marathon = result[:predictions].find { |p| p[:label] == "Marathon" }
+    assert_operator marathon[:seconds], :>, 3000 * 2
+  end
+
+  test "race_predictions ignores walks and very short efforts" do
+    Activity.delete_all
+    Activity.create!(title: "Fast walk", activity_type: "walk", started_at: 1.week.ago, distance_km: 20, duration_minutes: 40)
+    Activity.create!(title: "Sprint", activity_type: "run", started_at: 1.week.ago, distance_km: 1, duration_minutes: 3)
+
+    assert_nil Activity.race_predictions
   end
 
   test "pace_per_km divides duration by distance" do

@@ -9,7 +9,7 @@ class Api::V1::ActivitiesControllerTest < ActionDispatch::IntegrationTest
 
     body = JSON.parse(response.body)
     titles = body["activities"].map { |activity| activity["title"] }
-    assert_equal [ "Morning run", "Long ride" ], titles
+    assert_equal [ "Morning run", "Long walk" ], titles
 
     assert_equal 25.0, body["summary"]["total_distance_km"]
     assert_equal 5.0, body["summary"]["weekly_distance_km"]
@@ -21,6 +21,26 @@ class Api::V1::ActivitiesControllerTest < ActionDispatch::IntegrationTest
 
     morning = JSON.parse(response.body)["activities"].find { |a| a["title"] == "Morning run" }
     assert_equal 6.0, morning["pace_per_km"].to_f
+  end
+
+  test "index serialises started_at so the client can show a date" do
+    get api_v1_activities_url
+
+    morning = JSON.parse(response.body)["activities"].find { |a| a["title"] == "Morning run" }
+    assert morning.key?("started_at"), "started_at must be serialised"
+    assert_equal activities(:morning_run).started_at.iso8601(3), Time.parse(morning["started_at"]).utc.iso8601(3)
+  end
+
+  test "index summary carries the streak, records and weekly series" do
+    get api_v1_activities_url
+
+    summary = JSON.parse(response.body)["summary"]
+
+    assert_equal 2, summary["current_streak_weeks"]
+    assert_equal 12, summary["weekly_series"].size
+    assert_equal %w[week_start distance_km], summary["weekly_series"].first.keys
+    assert_equal "Morning run", summary.dig("records", "longest_run", "title")
+    assert_equal %w[longest_run fastest_pace], summary["records"].keys
   end
 
   test "create persists a valid activity and returns it" do
@@ -36,7 +56,6 @@ class Api::V1::ActivitiesControllerTest < ActionDispatch::IntegrationTest
     assert_response :created
     activity = JSON.parse(response.body)["activity"]
     assert_equal "Tempo run", activity["title"]
-    assert_equal 0, activity["kudos_count"]
     assert_equal 5.0, activity["pace_per_km"].to_f
   end
 
@@ -80,18 +99,19 @@ class Api::V1::ActivitiesControllerTest < ActionDispatch::IntegrationTest
     assert_response :unprocessable_entity
   end
 
-  test "kudos increments the counter and returns the updated activity" do
+  test "destroy removes the activity and returns no content" do
     activity = activities(:morning_run)
 
-    post api_v1_kudos_activity_url(activity)
+    assert_difference "Activity.count", -1 do
+      delete api_v1_activity_url(activity)
+    end
 
-    assert_response :success
-    assert_equal 2, JSON.parse(response.body)["activity"]["kudos_count"]
-    assert_equal 2, activity.reload.kudos_count
+    assert_response :no_content
+    assert_nil Activity.find_by(id: activity.id)
   end
 
-  test "kudos on a missing activity responds 404 rather than a 500" do
-    post api_v1_kudos_activity_url(id: 0)
+  test "destroy on a missing activity responds 404 rather than a 500" do
+    delete api_v1_activity_url(id: 0)
 
     assert_response :not_found
   end

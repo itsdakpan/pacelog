@@ -7,8 +7,7 @@ Rails.application.routes.draw do
 
   namespace :api do
     namespace :v1 do
-      resources :activities, only: %i[index create]
-      post "activities/:id/kudos", to: "activities#kudos", as: :kudos_activity
+      resources :activities, only: %i[index create destroy]
     end
   end
 

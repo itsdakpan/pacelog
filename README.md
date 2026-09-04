@@ -1,7 +1,48 @@
 # PaceLog
 
-Run logging with distance/pace stats, an activity feed, and kudos.
-Rails API in `api/`, React + Vite frontend in `web/`.
+A running progress diary that helps runners track activities, build consistency,
+monitor pace improvements, and estimate race performance.
+
+## Live demo
+
+[Open PaceLog](https://pacelog-pai11.vercel.app)
+
+> The free Render API may take up to one minute to wake after inactivity.
+
+## Features
+
+- Log running and walking activities
+- Switch between kilometres and miles
+- Track total and weekly distance
+- Monitor running pace over time
+- Build and measure weekly streaks
+- View personal records
+- Estimate 5K, 10K, half-marathon, and marathon performance
+- Review and delete previous activities
+- Use the responsive interface on desktop and mobile
+
+## Technology
+
+- **Frontend:** React, TypeScript, and Vite
+- **Backend:** Ruby on Rails API
+- **Database:** PostgreSQL hosted by Neon
+- **Frontend hosting:** Vercel
+- **API hosting:** Render
+- **Testing:** Vitest and Rails tests
+
+## Architecture
+
+The React frontend communicates with the Rails JSON API. The Rails application
+stores activities in PostgreSQL and calculates summaries, pace trends, streaks,
+records, and race predictions.
+
+The Rails API lives in `api/` and the React frontend lives in `web/`.
+
+## Project status
+
+PaceLog is currently a working prototype. Activity data is shared because user
+accounts and authentication have not been implemented yet. Do not store
+sensitive personal information.
 
 ## Running locally
 
@@ -22,21 +63,39 @@ so the frontend is never left running against an API that isn't there.
 
 Override the ports if you need to: `API_PORT=4001 WEB_PORT=4173 bin/dev`.
 
-### Why the API is on 3001, not Rails' usual 3000
-
-`next dev` claims port 3000 by default, and the portfolio site in
-`../Dylan_about` runs there. When both were on 3000 they could each hold the
-port at once — Next on the `*:3000` wildcard, Rails on the specific
-`127.0.0.1:3000` — so which server answered a request depended on bind order
-and which address the client used. Saves silently went to the wrong server.
-
-The default lives in `api/config/puma.rb` and is honoured by `PORT`.
+The API uses port 3001 locally to avoid conflicts with other development
+services. The default lives in `api/config/puma.rb` and is honoured by `PORT`.
 
 ### How the frontend reaches the API
 
 The browser calls same-origin paths (`/api/v1/...`), and Vite proxies `/api` to
 the API port (`web/vite.config.ts`). Nothing hardcodes a host or port into the
-client bundle, and there is no CORS in dev.
+client bundle in development.
+
+## Deployment configuration
+
+The two halves can be hosted separately. Build the frontend with the API's
+public base URL (including `/api/v1`):
+
+```sh
+cd web
+VITE_API_BASE_URL=https://api.example.com/api/v1 npm run build
+```
+
+Set `FRONTEND_ORIGINS` on the Rails service to the exact public frontend
+origin. Multiple origins are comma-separated:
+
+```sh
+FRONTEND_ORIGINS=https://pacelog.example.com
+```
+
+The demo intentionally accepts visitor writes. Schedule the following command
+nightly on the API host to replace visitor data with the deterministic seed:
+
+```sh
+cd api
+bin/rails pacelog:reset_demo
+```
 
 ## First-time setup
 
@@ -56,7 +115,7 @@ client bundle, and there is no CORS in dev.
 
 - `GET  /api/v1/activities` — activities and dashboard summary
 - `POST /api/v1/activities` — create an activity
-- `POST /api/v1/activities/:id/kudos` — add kudos
+- `DELETE /api/v1/activities/:id` — delete an activity
 
 ## Known environment issue
 
