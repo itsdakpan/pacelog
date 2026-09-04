@@ -1,87 +1,60 @@
 # PaceLog
 
-A running progress diary that helps runners track activities, build consistency,
-monitor pace improvements, and estimate race performance.
+PaceLog is a simple running diary for people who want to see their progress and
+become stronger runners.
 
-## Live demo
+## Try it
 
 [Open PaceLog](https://pacelog-pai11.vercel.app)
 
-> The free Render API may take up to one minute to wake after inactivity.
+The app uses free hosting, so it may take up to one minute to load after it has
+not been used for a while.
 
-## Features
+## What you can do
 
-- Log running and walking activities
-- Switch between kilometres and miles
-- Track total and weekly distance
-- Monitor running pace over time
-- Build and measure weekly streaks
-- View personal records
-- Estimate 5K, 10K, half-marathon, and marathon performance
-- Review and delete previous activities
-- Use the responsive interface on desktop and mobile
+- Record a run or walk
+- Choose kilometres or miles
+- See your weekly and total distance
+- Follow your pace and running streak
+- View your best performances
+- Get estimated finish times for a 5K, 10K, half-marathon, and marathon
+- Look back at or delete previous activities
 
-## Technology
+## Why I built it
 
-- **Frontend:** React, TypeScript, and Vite
-- **Backend:** Ruby on Rails API
-- **Database:** PostgreSQL hosted by Neon
-- **Frontend hosting:** Vercel
-- **API hosting:** Render
-- **Testing:** Vitest and Rails tests
+Improvement can be difficult to notice from one run to the next. PaceLog brings
+your activities and progress together so you can see how far you have come and
+stay motivated toward your next goal.
 
-## Architecture
+## Built with
 
-The React frontend communicates with the Rails JSON API. The Rails application
-stores activities in PostgreSQL and calculates summaries, pace trends, streaks,
-records, and race predictions.
-
-The Rails API lives in `api/` and the React frontend lives in `web/`.
+PaceLog uses React and TypeScript for the website, Ruby on Rails for the API,
+and PostgreSQL for storing activities. It is hosted using Vercel, Render, and
+Neon.
 
 ## Project status
 
-PaceLog is currently a working prototype. Activity data is shared because user
-accounts and authentication have not been implemented yet. Do not store
-sensitive personal information.
+PaceLog is currently a working prototype. Everyone shares the same demo
+activity list because personal accounts have not been added yet. Please do not
+enter sensitive personal information.
 
-## Running locally
+## Run it on your computer
 
-Install the dependencies:
+Install the project:
 
 ```sh
 (cd api && bundle install && bin/rails db:create db:migrate db:seed)
 (cd web && npm install)
 ```
 
-Start the Rails API and React frontend:
+Start PaceLog:
 
 ```sh
 bin/dev
 ```
 
-| Service  | Local URL               |
-| -------- | ----------------------- |
-| Frontend | `http://127.0.0.1:5173` |
-| API      | `http://127.0.0.1:3001` |
+Then open `http://127.0.0.1:5173` in your browser.
 
-## Deployment
+## About me
 
-- React frontend: Vercel
-- Rails API: Render
-- PostgreSQL database: Neon
-
-The frontend uses `VITE_API_BASE_URL` to connect to Rails. The API uses
-`DATABASE_URL` for PostgreSQL and `FRONTEND_ORIGINS` for its CORS allowlist.
-
-## Tests
-
-```sh
-(cd api && bin/rails test)   # model + request specs
-(cd web && npm test)         # API client + save-flow component tests
-```
-
-## API endpoints
-
-- `GET  /api/v1/activities` — activities and dashboard summary
-- `POST /api/v1/activities` — create an activity
-- `DELETE /api/v1/activities/:id` — delete an activity
+Portfolio: [My Portfolio](https://dylan-akpan.vercel.app/#top)
