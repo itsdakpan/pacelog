@@ -35,6 +35,3 @@ React, TypeScript, Ruby on Rails, and PostgreSQL.
 PaceLog is a working prototype. Personal accounts will be added in a future
 version, so everyone currently shares the same demo activity list.
 
-## About me
-
-Portfolio: [My Portfolio](https://dylan-akpan.vercel.app/#top)
